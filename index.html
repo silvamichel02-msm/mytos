@@ -159,7 +159,10 @@ button:hover {
 const SUPABASE_URL = "https://zjzwcbnshebgusxscvxv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
 
-alert("Supabase disponível: " + (typeof window.supabase));
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 const form = document.querySelector("form");
 
 form.addEventListener("submit", async function(event) {
