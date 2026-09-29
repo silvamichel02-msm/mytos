@@ -1,30 +1,160 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mytos — Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MYTOS — Conecte-se</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #071b1f, #0d3438, #071b1f);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 430px;
+}
+
+.logo {
+    text-align: center;
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: 5px;
+    margin-bottom: 8px;
+}
+
+.slogan {
+    text-align: center;
+    color: #a9d8d8;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 28px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+
+h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.12);
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+input::placeholder {
+    color: #b8cccc;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 18px;
+    border: none;
+    border-radius: 12px;
+    background: #35c6c0;
+    color: #062022;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #55ddd6;
+}
+
+.create {
+    text-align: center;
+    margin-top: 22px;
+    color: #b8cccc;
+}
+
+.create a {
+    color: #55ddd6;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 25px;
+    color: #78999b;
+    font-size: 13px;
+}
+</style>
 </head>
 
 <body>
 
-  <main>
-    <h1>MYTOS</h1>
-    <p>Conecte-se. Compartilhe. Pertença.</p>
+<div class="container">
 
-    <form>
-      <input type="email" placeholder="Seu e-mail" required>
+    <div class="logo">MYTOS</div>
 
-      <input type="password" placeholder="Sua senha" required>
+    <div class="slogan">
+        Conecte-se. Compartilhe. Pertença.
+    </div>
 
-      <button type="submit">Entrar</button>
-    </form>
+    <div class="card">
 
-    <p>
-      Ainda não tem uma conta?
-      <a href="#">Criar minha conta</a>
-    </p>
-  </main>
+        <h2>Entrar no Mytos</h2>
+
+        <form>
+            <input
+                type="email"
+                placeholder="Seu e-mail"
+                required
+            >
+
+            <input
+                type="password"
+                placeholder="Sua senha"
+                required
+            >
+
+            <button type="submit">
+                Entrar
+            </button>
+        </form>
+
+        <div class="create">
+            Ainda não tem uma conta?
+            <br><br>
+            <a href="#">Criar minha conta</a>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        © 2026 MYTOS — Rede social brasileira
+    </div>
+
+</div>
 
 </body>
 </html>
