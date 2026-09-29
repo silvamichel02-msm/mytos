@@ -163,26 +163,51 @@ const supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
+
 const form = document.querySelector("form");
 
 form.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    const email = form.querySelector('input[type="email"]').value;
+    const email = form.querySelector('input[type="email"]').value.trim();
     const password = form.querySelector('input[type="password"]').value;
 
-    const { error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
-
-    if (error) {
-        alert("E-mail ou senha incorretos.");
+    if (!email || !password) {
+        alert("Preencha seu e-mail e sua senha.");
         return;
     }
 
-    alert("Login realizado com sucesso!");
+    const button = form.querySelector('button[type="submit"]');
+
+    button.disabled = true;
+    button.textContent = "Entrando...";
+
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            alert("Erro no login: " + error.message);
+            button.disabled = false;
+            button.textContent = "Entrar";
+            return;
+        }
+
+        if (data && data.session) {
+            alert("Login realizado com sucesso!");
+        } else {
+            alert("Login realizado, mas a sessão não foi criada.");
+        }
+
+    } catch (error) {
+        alert("Erro inesperado: " + error.message);
+    }
+
+    button.disabled = false;
+    button.textContent = "Entrar";
 });
-</script>
+            </script>
 </body>
 </html>
