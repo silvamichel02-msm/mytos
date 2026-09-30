@@ -159,10 +159,54 @@ button:hover {
 const SUPABASE_URL = "https://zjzwcbnshebgusxscvxv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
 
-const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+const supabase = {
+    auth: {
+        signInWithPassword: async function({ email, password }) {
+            try {
+                const response = await fetch(
+                    SUPABASE_URL + "/auth/v1/token?grant_type=password",
+                    {
+                        method: "POST",
+                        headers: {
+                            "apikey": SUPABASE_KEY,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    return {
+                        data: null,
+                        error: new Error(
+                            result.error_description ||
+                            result.msg ||
+                            "Erro no login."
+                        )
+                    };
+                }
+
+                return {
+                    data: {
+                        session: result
+                    },
+                    error: null
+                };
+
+            } catch (error) {
+                return {
+                    data: null,
+                    error: error
+                };
+            }
+        }
+    }
+};
 
 const form = document.querySelector("form");
 
