@@ -159,7 +159,11 @@ button:hover {
 const SUPABASE_URL = "https://zjzwcbnshebgusxscvxv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
 
-<script>
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
 const form = document.querySelector("form");
 
 form.addEventListener("submit", async function(event) {
@@ -167,51 +171,34 @@ form.addEventListener("submit", async function(event) {
 
     const email = form.querySelector('input[type="email"]').value.trim();
     const password = form.querySelector('input[type="password"]').value;
-    const button = form.querySelector('button[type="submit"]');
 
     if (!email || !password) {
         alert("Preencha seu e-mail e sua senha.");
         return;
     }
 
+    const button = form.querySelector('button[type="submit"]');
+
     button.disabled = true;
     button.textContent = "Entrando...";
 
     try {
-        const response = await fetch(
-            SUPABASE_URL + "/auth/v1/token?grant_type=password",
-            {
-                method: "POST",
-                headers: {
-                    "apikey": SUPABASE_KEY,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            }
-        );
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
 
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.error_description || result.msg || "Erro no login.");
+        if (error) {
+            alert("Erro no login: " + error.message);
+            button.disabled = false;
+            button.textContent = "Entrar";
+            return;
         }
 
-        localStorage.setItem("mytos_access_token", result.access_token);
-        localStorage.setItem("mytos_refresh_token", result.refresh_token);
-
-        alert("Login realizado com sucesso!");
-
-    } catch (error) {
-        alert("Erro no login: " + error.message);
-    }
-
-    button.disabled = false;
-    button.textContent = "Entrar";
-});
-</script>
+        if (data && data.session) {
+            alert("Login realizado com sucesso!");
+        } else {
+            alert("Login realizado, mas a sessão não foi criada.");
         }
 
     } catch (error) {
