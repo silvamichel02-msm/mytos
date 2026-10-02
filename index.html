@@ -1,120 +1,158 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head> 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MYTOS — Conecte-se</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<style>
-* {
-    box-sizing: border-box;
-}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #071b1f, #0d3438, #071b1f);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
+    <title>MYTOS — Conecte-se</title>
 
-.container {
-    width: 100%;
-    max-width: 430px;
-}
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-.logo {
-    text-align: center;
-    font-size: 48px;
-    font-weight: 800;
-    letter-spacing: 5px;
-    margin-bottom: 8px;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-.slogan {
-    text-align: center;
-    color: #a9d8d8;
-    margin-bottom: 30px;
-    font-size: 16px;
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                linear-gradient(
+                    135deg,
+                    #071b1f,
+                    #0d3438,
+                    #071b1f
+                );
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-.card {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 24px;
-    padding: 28px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-}
+        .container {
+            width: 100%;
+            max-width: 430px;
+        }
 
-h2 {
-    margin-top: 0;
-    text-align: center;
-}
+        .logo {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: 5px;
+            margin-bottom: 8px;
+        }
 
-input {
-    width: 100%;
-    padding: 15px;
-    margin-top: 12px;
-    border: none;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.12);
-    color: white;
-    font-size: 16px;
-    outline: none;
-}
+        .slogan {
+            text-align: center;
+            color: #a9d8d8;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
 
-input::placeholder {
-    color: #b8cccc;
-}
+        .card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 28px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+        }
 
-button {
-    width: 100%;
-    padding: 15px;
-    margin-top: 18px;
-    border: none;
-    border-radius: 12px;
-    background: #35c6c0;
-    color: #062022;
-    font-size: 17px;
-    font-weight: bold;
-    cursor: pointer;
-}
+        h2 {
+            margin-top: 0;
+            text-align: center;
+        }
 
-button:hover {
-    background: #55ddd6;
-}
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
 
-.create {
-    text-align: center;
-    margin-top: 22px;
-    color: #b8cccc;
-}
+        input::placeholder {
+            color: #b8cccc;
+        }
 
-.create a {
-    color: #55ddd6;
-    font-weight: bold;
-    text-decoration: none;
-}
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 18px;
+            border: none;
+            border-radius: 12px;
+            background: #35c6c0;
+            color: #062022;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-.footer {
-    text-align: center;
-    margin-top: 25px;
-    color: #78999b;
-    font-size: 13px;
-}
-</style>
+        button:hover {
+            background: #55ddd6;
+        }
+
+        button:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        .message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(255, 80, 80, 0.15);
+            color: #ffb5b5;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(53, 198, 192, 0.15);
+            color: #8ff5ef;
+        }
+
+        .create {
+            text-align: center;
+            margin-top: 22px;
+            color: #b8cccc;
+        }
+
+        .create a {
+            color: #55ddd6;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #78999b;
+            font-size: 13px;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="logo">MYTOS</div>
+    <div class="logo">
+        MYTOS
+    </div>
 
     <div class="slogan">
         Conecte-se. Compartilhe. Pertença.
@@ -124,28 +162,38 @@ button:hover {
 
         <h2>Entrar no Mytos</h2>
 
-        <form>
+        <form id="loginForm">
+
             <input
+                id="email"
                 type="email"
                 placeholder="Seu e-mail"
+                autocomplete="email"
                 required
             >
 
             <input
+                id="password"
                 type="password"
                 placeholder="Sua senha"
+                autocomplete="current-password"
                 required
             >
 
-    <button type="submit">    
+            <button id="loginButton" type="submit">
                 Entrar
             </button>
+
+            <div id="message" class="message"></div>
+
         </form>
 
         <div class="create">
             Ainda não tem uma conta?
             <br><br>
-            <a href="#">Criar minha conta</a>
+            <a href="#" id="createAccount">
+                Criar minha conta
+            </a>
         </div>
 
     </div>
@@ -155,102 +203,172 @@ button:hover {
     </div>
 
 </div>
+
 <script>
-const SUPABASE_URL = "https://zjzwcbnshebgusxscvxv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
 
-const supabase = {
-    auth: {
-        signInWithPassword: async function({ email, password }) {
-            try {
-                const response = await fetch(
-                    SUPABASE_URL + "/auth/v1/token?grant_type=password",
-                    {
-                        method: "POST",
-                        headers: {
-                            "apikey": SUPABASE_KEY,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    }
-                );
+    /* ==========================================
+       CONFIGURAÇÃO SUPABASE
+       ========================================== */
 
-                const result = await response.json();
+    const SUPABASE_URL =
+        "https://zjzwcbnshebgusxscvxv.supabase.co";
 
-                if (!response.ok) {
-                    return {
-                        data: null,
-                        error: new Error(
-                            result.error_description ||
-                            result.msg ||
-                            "Erro no login."
-                        )
-                    };
-                }
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
 
-                return {
-                    data: {
-                        session: result
-                    },
-                    error: null
-                };
 
-            } catch (error) {
-                return {
-                    data: null,
-                    error: error
-                };
-            }
-        }
-    }
-};
+    /* ==========================================
+       INICIALIZAÇÃO
+       ========================================== */
 
-const form = document.querySelector("form");
+    document.addEventListener("DOMContentLoaded", function () {
 
-form.addEventListener("submit", async function(event) {
-    event.preventDefault();
+        const form = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginButton = document.getElementById("loginButton");
+        const message = document.getElementById("message");
+        const createAccount = document.getElementById("createAccount");
 
-    const email = form.querySelector('input[type="email"]').value.trim();
-    const password = form.querySelector('input[type="password"]').value;
 
-    if (!email || !password) {
-        alert("Preencha seu e-mail e sua senha.");
-        return;
-    }
+        /* Verifica se o Supabase carregou */
 
-    const button = form.querySelector('button[type="submit"]');
+        if (!window.supabase) {
 
-    button.disabled = true;
-    button.textContent = "Entrando...";
+            message.textContent =
+                "Não foi possível carregar o sistema de login.";
 
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        if (error) {
-            alert("Erro no login: " + error.message);
-            button.disabled = false;
-            button.textContent = "Entrar";
+            message.className = "message error";
+
             return;
         }
 
-        if (data && data.session) {
-            alert("Login realizado com sucesso!");
-        } else {
-            alert("Login realizado, mas a sessão não foi criada.");
-        }
 
-    } catch (error) {
-        alert("Erro inesperado: " + error.message);
-    }
+        /* Cria o cliente oficial do Supabase */
 
-    button.disabled = false;
-    button.textContent = "Entrar";
-});
-            </script>
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_PUBLISHABLE_KEY
+            );
+
+
+        /* ==========================================
+           LOGIN
+           ========================================== */
+
+        form.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            message.className = "message";
+            message.textContent = "";
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            if (!email || !password) {
+
+                message.textContent =
+                    "Preencha seu e-mail e sua senha.";
+
+                message.className =
+                    "message error";
+
+                return;
+            }
+
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Entrando...";
+
+
+            try {
+
+                const { data, error } =
+                    await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+
+                if (error) {
+
+                    message.textContent =
+                        "Erro no login: " + error.message;
+
+                    message.className =
+                        "message error";
+
+                    loginButton.disabled = false;
+                    loginButton.textContent = "Entrar";
+
+                    return;
+                }
+
+
+                if (data && data.session) {
+
+                    message.textContent =
+                        "Login realizado com sucesso!";
+
+                    message.className =
+                        "message success";
+
+                    loginButton.textContent =
+                        "Entrou!";
+
+                } else {
+
+                    message.textContent =
+                        "Login realizado, mas a sessão não foi criada.";
+
+                    message.className =
+                        "message error";
+
+                    loginButton.disabled = false;
+                    loginButton.textContent = "Entrar";
+                }
+
+
+            } catch (error) {
+
+                message.textContent =
+                    "Erro inesperado: " + error.message;
+
+                message.className =
+                    "message error";
+
+                loginButton.disabled = false;
+                loginButton.textContent = "Entrar";
+            }
+
+        });
+
+
+        /* ==========================================
+           CRIAR CONTA
+           ========================================== */
+
+        createAccount.addEventListener("click", function (event) {
+
+            event.preventDefault();
+
+            message.textContent =
+                "A criação de contas será ativada na próxima etapa.";
+
+            message.className =
+                "message success";
+
+        });
+
+    });
+
+</script>
+
 </body>
 </html>
