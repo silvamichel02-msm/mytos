@@ -313,14 +313,12 @@
 
                 if (data && data.session) {
 
-                    message.textContent =
-                        "Login realizado com sucesso!";
+    document.querySelector(".container").style.display = "none";
 
-                    message.className =
-                        "message success";
+    document.getElementById("app").style.display = "block";
 
-                    loginButton.textContent =
-                        "Entrou!";
+    document.getElementById("userEmail").textContent =
+        "Você entrou como: " + email;
 
                 } else {
 
