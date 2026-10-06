@@ -1,23 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>MYTOS — Conecte-se</title>
 
-    <!-- Supabase -->
+    <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+
     <style>
+
         * {
             box-sizing: border-box;
         }
 
+
         body {
+
             margin: 0;
+
             min-height: 100vh;
+
             font-family: Arial, sans-serif;
+
             background:
                 linear-gradient(
                     135deg,
@@ -25,142 +38,557 @@
                     #0d3438,
                     #071b1f
                 );
+
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
             padding: 20px;
         }
 
-        .container {
+
+        /* ==========================================
+           LOGIN
+           ========================================== */
+
+        .login-container {
+
             width: 100%;
+
             max-width: 430px;
+
+            margin: 0 auto;
+
+            padding-top: 8vh;
         }
 
+
         .logo {
+
             text-align: center;
+
             font-size: 48px;
+
             font-weight: 800;
+
             letter-spacing: 5px;
+
             margin-bottom: 8px;
         }
 
+
         .slogan {
+
             text-align: center;
+
             color: #a9d8d8;
+
             margin-bottom: 30px;
+
             font-size: 16px;
         }
+
 
         .card {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
+
+            background:
+                rgba(255,255,255,0.08);
+
+            border:
+                1px solid rgba(255,255,255,0.15);
+
             border-radius: 24px;
+
             padding: 28px;
+
             backdrop-filter: blur(12px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+
+            box-shadow:
+                0 20px 50px rgba(0,0,0,0.35);
         }
 
+
         h2 {
+
             margin-top: 0;
+
             text-align: center;
         }
 
-        input {
+
+        input,
+        textarea {
+
             width: 100%;
+
             padding: 15px;
+
             margin-top: 12px;
+
             border: none;
+
             border-radius: 12px;
-            background: rgba(255,255,255,0.12);
+
+            background:
+                rgba(255,255,255,0.12);
+
             color: white;
+
             font-size: 16px;
+
             outline: none;
         }
 
-        input::placeholder {
+
+        textarea {
+
+            min-height: 120px;
+
+            resize: vertical;
+        }
+
+
+        input::placeholder,
+        textarea::placeholder {
+
             color: #b8cccc;
         }
 
+
         button {
+
             width: 100%;
+
             padding: 15px;
+
             margin-top: 18px;
+
             border: none;
+
             border-radius: 12px;
+
             background: #35c6c0;
+
             color: #062022;
+
             font-size: 17px;
+
             font-weight: bold;
+
             cursor: pointer;
         }
 
+
         button:hover {
+
             background: #55ddd6;
         }
 
+
         button:disabled {
+
             opacity: 0.7;
+
             cursor: wait;
         }
 
+
+        .secondary-button {
+
+            background:
+                rgba(255,255,255,0.10);
+
+            color: white;
+
+            border:
+                1px solid rgba(255,255,255,0.15);
+        }
+
+
+        .secondary-button:hover {
+
+            background:
+                rgba(255,255,255,0.16);
+        }
+
+
+        .danger-button {
+
+            background:
+                rgba(255,80,80,0.15);
+
+            color: #ffb5b5;
+
+            border:
+                1px solid rgba(255,80,80,0.20);
+        }
+
+
         .message {
+
             display: none;
+
             margin-top: 15px;
+
             padding: 12px;
+
             border-radius: 10px;
+
             text-align: center;
+
             font-size: 14px;
         }
 
+
         .message.error {
+
             display: block;
-            background: rgba(255, 80, 80, 0.15);
+
+            background:
+                rgba(255,80,80,0.15);
+
             color: #ffb5b5;
         }
 
+
         .message.success {
+
             display: block;
-            background: rgba(53, 198, 192, 0.15);
+
+            background:
+                rgba(53,198,192,0.15);
+
             color: #8ff5ef;
         }
 
+
         .create {
+
             text-align: center;
+
             margin-top: 22px;
+
             color: #b8cccc;
         }
 
+
         .create a {
+
             color: #55ddd6;
+
             font-weight: bold;
+
             text-decoration: none;
         }
 
+
         .footer {
+
             text-align: center;
+
             margin-top: 25px;
+
             color: #78999b;
+
             font-size: 13px;
         }
+
+
+        /* ==========================================
+           ÁREA PRINCIPAL
+           ========================================== */
+
+        #app {
+
+            display: none;
+
+            width: 100%;
+
+            max-width: 1000px;
+
+            margin: 0 auto;
+        }
+
+
+        .app-header {
+
+            background:
+                rgba(7,27,31,0.95);
+
+            border:
+                1px solid rgba(255,255,255,0.10);
+
+            border-radius: 20px;
+
+            padding: 20px;
+
+            margin-bottom: 20px;
+
+            text-align: center;
+        }
+
+
+        .app-logo {
+
+            font-size: 30px;
+
+            font-weight: 800;
+
+            letter-spacing: 5px;
+        }
+
+
+        .app-slogan {
+
+            color: #a9d8d8;
+
+            margin-top: 5px;
+        }
+
+
+        .app-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 2fr);
+
+            gap: 20px;
+        }
+
+
+        .app-card {
+
+            background:
+                rgba(255,255,255,0.08);
+
+            border:
+                1px solid rgba(255,255,255,0.12);
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 15px 40px rgba(0,0,0,0.20);
+        }
+
+
+        .profile-avatar {
+
+            width: 90px;
+
+            height: 90px;
+
+            border-radius: 50%;
+
+            margin: 0 auto 18px auto;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #35c6c0,
+                    #1b7778
+                );
+
+            color: white;
+
+            font-size: 34px;
+
+            font-weight: bold;
+        }
+
+
+        .profile-name {
+
+            text-align: center;
+
+            font-size: 25px;
+
+            font-weight: bold;
+
+            margin-bottom: 5px;
+        }
+
+
+        .profile-username {
+
+            text-align: center;
+
+            color: #8ff5ef;
+
+            margin-bottom: 18px;
+        }
+
+
+        .profile-bio {
+
+            color: #b8cccc;
+
+            text-align: center;
+
+            line-height: 1.5;
+
+            white-space: pre-wrap;
+        }
+
+
+        .welcome-title {
+
+            margin-top: 0;
+
+            font-size: 30px;
+        }
+
+
+        .welcome-email {
+
+            color: #a9d8d8;
+
+            word-break: break-word;
+        }
+
+
+        .section-title {
+
+            margin-top: 0;
+
+            margin-bottom: 10px;
+        }
+
+
+        .future-box {
+
+            background:
+                rgba(255,255,255,0.05);
+
+            border:
+                1px dashed rgba(255,255,255,0.15);
+
+            border-radius: 15px;
+
+            padding: 20px;
+
+            color: #b8cccc;
+
+            line-height: 1.6;
+        }
+
+
+        .edit-area {
+
+            display: none;
+
+            margin-top: 20px;
+        }
+
+
+        .edit-area.active {
+
+            display: block;
+        }
+
+
+        .small-label {
+
+            display: block;
+
+            margin-top: 15px;
+
+            margin-bottom: 4px;
+
+            color: #a9d8d8;
+
+            font-size: 14px;
+        }
+
+
+        .status {
+
+            min-height: 20px;
+
+            margin-top: 12px;
+
+            text-align: center;
+
+            font-size: 14px;
+        }
+
+
+        /* ==========================================
+           RESPONSIVO
+           ========================================== */
+
+        @media (max-width: 760px) {
+
+            .app-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .app-logo {
+
+                font-size: 26px;
+            }
+
+
+            .welcome-title {
+
+                font-size: 26px;
+            }
+
+
+            .login-container {
+
+                padding-top: 3vh;
+            }
+
+
+            .logo {
+
+                font-size: 40px;
+            }
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-<div class="container">
+
+<!-- ==========================================
+     LOGIN
+     ========================================== -->
+
+<div
+    class="login-container"
+    id="loginContainer"
+>
 
     <div class="logo">
         MYTOS
     </div>
 
+
     <div class="slogan">
         Conecte-se. Compartilhe. Pertença.
     </div>
 
+
     <div class="card">
 
-        <h2>Entrar no Mytos</h2>
+        <h2>
+            Entrar no Mytos
+        </h2>
+
 
         <form id="loginForm">
 
@@ -172,6 +600,7 @@
                 required
             >
 
+
             <input
                 id="password"
                 type="password"
@@ -180,71 +609,383 @@
                 required
             >
 
-            <button id="loginButton" type="submit">
+
+            <button
+                id="loginButton"
+                type="submit"
+            >
                 Entrar
             </button>
 
-            <div id="message" class="message"></div>
+
+            <div
+                id="message"
+                class="message"
+            ></div>
 
         </form>
 
+
         <div class="create">
+
             Ainda não tem uma conta?
+
             <br><br>
-            <a href="#" id="createAccount">
+
+            <a
+                href="#"
+                id="createAccount"
+            >
                 Criar minha conta
             </a>
+
         </div>
 
     </div>
 
+
     <div class="footer">
+
         © 2026 MYTOS — Rede social brasileira
+
     </div>
 
 </div>
 
+
+
+<!-- ==========================================
+     ÁREA PRINCIPAL DO MYTOS
+     ========================================== -->
+
+<div id="app">
+
+
+    <header class="app-header">
+
+        <div class="app-logo">
+            MYTOS
+        </div>
+
+
+        <div class="app-slogan">
+            Conecte-se. Compartilhe. Pertença.
+        </div>
+
+    </header>
+
+
+
+    <main class="app-grid">
+
+
+        <!-- ======================================
+             PERFIL
+             ====================================== -->
+
+        <section class="app-card">
+
+            <div
+                id="profileAvatar"
+                class="profile-avatar"
+            >
+                M
+            </div>
+
+
+            <div
+                id="profileName"
+                class="profile-name"
+            >
+                Carregando...
+            </div>
+
+
+            <div
+                id="profileUsername"
+                class="profile-username"
+            >
+                @usuario
+            </div>
+
+
+            <div
+                id="profileBio"
+                class="profile-bio"
+            >
+                Carregando perfil...
+            </div>
+
+
+            <button
+                id="editProfileButton"
+                type="button"
+            >
+                Editar perfil
+            </button>
+
+
+            <!-- ==================================
+                 EDIÇÃO DO PERFIL
+                 ================================== -->
+
+            <div
+                id="editArea"
+                class="edit-area"
+            >
+
+                <label
+                    class="small-label"
+                    for="fullNameInput"
+                >
+                    Nome completo
+                </label>
+
+
+                <input
+                    id="fullNameInput"
+                    type="text"
+                    placeholder="Seu nome"
+                >
+
+
+                <label
+                    class="small-label"
+                    for="usernameInput"
+                >
+                    Nome de usuário
+                </label>
+
+
+                <input
+                    id="usernameInput"
+                    type="text"
+                    placeholder="seuusuario"
+                >
+
+
+                <label
+                    class="small-label"
+                    for="bioInput"
+                >
+                    Biografia
+                </label>
+
+
+                <textarea
+                    id="bioInput"
+                    placeholder="Conte um pouco sobre você..."
+                ></textarea>
+
+
+                <button
+                    id="saveProfileButton"
+                    type="button"
+                >
+                    Salvar perfil
+                </button>
+
+
+                <button
+                    id="cancelEditButton"
+                    type="button"
+                    class="secondary-button"
+                >
+                    Cancelar
+                </button>
+
+
+                <div
+                    id="profileStatus"
+                    class="status"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ======================================
+             ESPAÇO PRINCIPAL
+             ====================================== -->
+
+        <section class="app-card">
+
+            <h1 class="welcome-title">
+                Bem-vindo ao Mytos!
+            </h1>
+
+
+            <p
+                id="userEmail"
+                class="welcome-email"
+            >
+                Carregando...
+            </p>
+
+
+            <br>
+
+
+            <h2 class="section-title">
+                Seu espaço no Mytos
+            </h2>
+
+
+            <div class="future-box">
+
+                <strong>
+                    O Mytos está começando a ganhar vida.
+                </strong>
+
+                <br><br>
+
+                Em breve você poderá publicar,
+                encontrar amigos, participar de comunidades,
+                conversar e descobrir novos conteúdos.
+
+                <br><br>
+
+                O próximo grande passo será o
+                <strong>mural de publicações</strong>.
+
+            </div>
+
+
+            <button
+                id="logoutButton"
+                type="button"
+                class="danger-button"
+            >
+                Sair do Mytos
+            </button>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
 <script>
 
-    /* ==========================================
-       CONFIGURAÇÃO SUPABASE
-       ========================================== */
 
-    const SUPABASE_URL =
-        "https://zjzwcbnshebgusxscvxv.supabase.co";
+/* ==========================================
+   CONFIGURAÇÃO SUPABASE
+   ========================================== */
 
-    const SUPABASE_PUBLISHABLE_KEY =
-        "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
+const SUPABASE_URL =
+    "https://zjzwcbnshebgusxscvxv.supabase.co";
 
 
-    /* ==========================================
-       INICIALIZAÇÃO
-       ========================================== */
-
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const form = document.getElementById("loginForm");
-        const emailInput = document.getElementById("email");
-        const passwordInput = document.getElementById("password");
-        const loginButton = document.getElementById("loginButton");
-        const message = document.getElementById("message");
-        const createAccount = document.getElementById("createAccount");
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_e6orIUfPN5YoKDbApFiV2A_t_GONaGE";
 
 
-        /* Verifica se o Supabase carregou */
+
+/* ==========================================
+   INICIALIZAÇÃO
+   ========================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+
+        /* ELEMENTOS DO LOGIN */
+
+        const loginContainer =
+            document.getElementById("loginContainer");
+
+        const form =
+            document.getElementById("loginForm");
+
+        const emailInput =
+            document.getElementById("email");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        const message =
+            document.getElementById("message");
+
+        const createAccount =
+            document.getElementById("createAccount");
+
+
+        /* ELEMENTOS DO APP */
+
+        const app =
+            document.getElementById("app");
+
+        const userEmail =
+            document.getElementById("userEmail");
+
+        const profileAvatar =
+            document.getElementById("profileAvatar");
+
+        const profileName =
+            document.getElementById("profileName");
+
+        const profileUsername =
+            document.getElementById("profileUsername");
+
+        const profileBio =
+            document.getElementById("profileBio");
+
+        const editProfileButton =
+            document.getElementById("editProfileButton");
+
+        const editArea =
+            document.getElementById("editArea");
+
+        const fullNameInput =
+            document.getElementById("fullNameInput");
+
+        const usernameInput =
+            document.getElementById("usernameInput");
+
+        const bioInput =
+            document.getElementById("bioInput");
+
+        const saveProfileButton =
+            document.getElementById("saveProfileButton");
+
+        const cancelEditButton =
+            document.getElementById("cancelEditButton");
+
+        const profileStatus =
+            document.getElementById("profileStatus");
+
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+
+        /* ==========================================
+           VERIFICA SUPABASE
+           ========================================== */
 
         if (!window.supabase) {
 
             message.textContent =
                 "Não foi possível carregar o sistema de login.";
 
-            message.className = "message error";
+            message.className =
+                "message error";
 
             return;
         }
 
 
-        /* Cria o cliente oficial do Supabase */
+        /* ==========================================
+           CLIENTE SUPABASE
+           ========================================== */
 
         const supabaseClient =
             window.supabase.createClient(
@@ -254,189 +995,715 @@
 
 
         /* ==========================================
-           LOGIN
+           FUNÇÃO: MOSTRAR ÁREA PRINCIPAL
            ========================================== */
 
-        form.addEventListener("submit", async function (event) {
+        async function showApp(user) {
 
-            event.preventDefault();
-
-            message.className = "message";
-            message.textContent = "";
-
-            const email =
-                emailInput.value.trim();
-
-            const password =
-                passwordInput.value;
+            loginContainer.style.display =
+                "none";
 
 
-            if (!email || !password) {
+            app.style.display =
+                "block";
 
-                message.textContent =
-                    "Preencha seu e-mail e sua senha.";
 
-                message.className =
-                    "message error";
+            userEmail.textContent =
+                "Você entrou como: " + user.email;
+
+
+            await loadProfile(user);
+
+        }
+
+
+        /* ==========================================
+           FUNÇÃO: CARREGAR PERFIL
+           ========================================== */
+
+        async function loadProfile(user) {
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("profiles")
+                    .select(
+                        "id, username, full_name, bio, avatar_url"
+                    )
+                    .eq("id", user.id)
+                    .maybeSingle();
+
+
+            if (error) {
+
+                console.error(
+                    "Erro ao carregar perfil:",
+                    error
+                );
+
+                profileName.textContent =
+                    "Seu perfil";
+
+                profileUsername.textContent =
+                    "@usuario";
+
+                profileBio.textContent =
+                    "Não foi possível carregar o perfil.";
 
                 return;
             }
 
 
-            loginButton.disabled = true;
-            loginButton.textContent = "Entrando...";
+            /* ======================================
+               SE NÃO EXISTIR PERFIL,
+               CRIA AUTOMATICAMENTE
+               ====================================== */
+
+            if (!data) {
 
 
-            try {
-
-                const { data, error } =
-                    await supabaseClient.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
+                const defaultUsername =
+                    "usuario_" +
+                    user.id.substring(0, 8);
 
 
-                if (error) {
+                const {
+                    data: newProfile,
+                    error: insertError
+                } =
+                    await supabaseClient
+                        .from("profiles")
+                        .insert({
 
-                    message.textContent =
-                        "Erro no login: " + error.message;
+                            id: user.id,
 
-                    message.className =
-                        "message error";
+                            username:
+                                defaultUsername,
 
-                    loginButton.disabled = false;
-                    loginButton.textContent = "Entrar";
+                            full_name:
+                                "",
+
+                            bio:
+                                "",
+
+                            avatar_url:
+                                ""
+
+                        })
+                        .select()
+                        .single();
+
+
+                if (insertError) {
+
+                    console.error(
+                        "Erro ao criar perfil:",
+                        insertError
+                    );
+
+                    profileName.textContent =
+                        "Seu perfil";
+
+                    profileUsername.textContent =
+                        "@" + defaultUsername;
+
+                    profileBio.textContent =
+                        "Edite seu perfil para começar.";
 
                     return;
                 }
 
 
-                if (data && data.session) {
+                displayProfile(newProfile);
 
-    document.querySelector(".container").style.display = "none";
+                return;
+            }
 
-    document.getElementById("app").style.display = "block";
 
-    document.getElementById("userEmail").textContent =
-        "Você entrou como: " + email;
+            displayProfile(data);
 
-                } else {
+        }
+
+
+
+        /* ==========================================
+           FUNÇÃO: MOSTRAR PERFIL
+           ========================================== */
+
+        function displayProfile(profile) {
+
+
+            const name =
+                profile.full_name &&
+                profile.full_name.trim()
+                    ? profile.full_name
+                    : "Seu nome";
+
+
+            const username =
+                profile.username &&
+                profile.username.trim()
+                    ? profile.username
+                    : "usuario";
+
+
+            const bio =
+                profile.bio &&
+                profile.bio.trim()
+                    ? profile.bio
+                    : "Ainda não adicionei uma biografia.";
+
+
+            profileName.textContent =
+                name;
+
+
+            profileUsername.textContent =
+                "@" + username;
+
+
+            profileBio.textContent =
+                bio;
+
+
+            /* PRIMEIRA LETRA DO NOME */
+
+            profileAvatar.textContent =
+                name
+                    .charAt(0)
+                    .toUpperCase();
+
+
+            /* PREENCHE CAMPOS DE EDIÇÃO */
+
+            fullNameInput.value =
+                profile.full_name || "";
+
+
+            usernameInput.value =
+                profile.username || "";
+
+
+            bioInput.value =
+                profile.bio || "";
+
+        }
+
+
+
+        /* ==========================================
+           LOGIN
+           ========================================== */
+
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                message.className =
+                    "message";
+
+
+                message.textContent =
+                    "";
+
+
+                const email =
+                    emailInput.value.trim();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                if (!email || !password) {
 
                     message.textContent =
-                        "Login realizado, mas a sessão não foi criada.";
+                        "Preencha seu e-mail e sua senha.";
 
                     message.className =
                         "message error";
 
-                    loginButton.disabled = false;
-                    loginButton.textContent = "Entrar";
+                    return;
                 }
 
 
-            } catch (error) {
+                loginButton.disabled =
+                    true;
 
-                message.textContent =
-                    "Erro inesperado: " + error.message;
 
-                message.className =
-                    "message error";
+                loginButton.textContent =
+                    "Entrando...";
 
-                loginButton.disabled = false;
-                loginButton.textContent = "Entrar";
+
+                try {
+
+
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient
+                            .auth
+                            .signInWithPassword({
+
+                                email:
+                                    email,
+
+                                password:
+                                    password
+
+                            });
+
+
+                    if (error) {
+
+                        message.textContent =
+                            "Erro no login: " +
+                            error.message;
+
+                        message.className =
+                            "message error";
+
+                        loginButton.disabled =
+                            false;
+
+                        loginButton.textContent =
+                            "Entrar";
+
+                        return;
+                    }
+
+
+                    if (
+                        data &&
+                        data.session &&
+                        data.user
+                    ) {
+
+                        await showApp(
+                            data.user
+                        );
+
+                    } else {
+
+                        message.textContent =
+                            "Login realizado, mas a sessão não foi criada.";
+
+                        message.className =
+                            "message error";
+
+                        loginButton.disabled =
+                            false;
+
+                        loginButton.textContent =
+                            "Entrar";
+                    }
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+
+                    message.textContent =
+                        "Erro inesperado: " +
+                        error.message;
+
+
+                    message.className =
+                        "message error";
+
+
+                    loginButton.disabled =
+                        false;
+
+
+                    loginButton.textContent =
+                        "Entrar";
+                }
+
+            }
+        );
+
+
+
+        /* ==========================================
+           VERIFICA SESSÃO EXISTENTE
+           ========================================== */
+
+        try {
+
+            const {
+                data
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (
+                data &&
+                data.session &&
+                data.session.user
+            ) {
+
+                await showApp(
+                    data.session.user
+                );
             }
 
-        });
+        } catch (error) {
+
+            console.error(
+                "Erro ao verificar sessão:",
+                error
+            );
+        }
+
+
+
+        /* ==========================================
+           EDITAR PERFIL
+           ========================================== */
+
+        editProfileButton.addEventListener(
+            "click",
+            function () {
+
+                editArea.classList.add(
+                    "active"
+                );
+
+                profileStatus.textContent =
+                    "";
+
+            }
+        );
+
+
+
+        /* ==========================================
+           CANCELAR EDIÇÃO
+           ========================================== */
+
+        cancelEditButton.addEventListener(
+            "click",
+            async function () {
+
+                editArea.classList.remove(
+                    "active"
+                );
+
+
+                const {
+                    data
+                } =
+                    await supabaseClient
+                        .auth
+                        .getSession();
+
+
+                if (
+                    data &&
+                    data.session &&
+                    data.session.user
+                ) {
+
+                    await loadProfile(
+                        data.session.user
+                    );
+                }
+
+            }
+        );
+
+
+
+        /* ==========================================
+           SALVAR PERFIL
+           ========================================== */
+
+        saveProfileButton.addEventListener(
+            "click",
+            async function () {
+
+
+                profileStatus.textContent =
+                    "Salvando...";
+
+
+                saveProfileButton.disabled =
+                    true;
+
+
+                try {
+
+
+                    const {
+                        data: sessionData,
+                        error: sessionError
+                    } =
+                        await supabaseClient
+                            .auth
+                            .getSession();
+
+
+                    if (
+                        sessionError ||
+                        !sessionData ||
+                        !sessionData.session
+                    ) {
+
+                        profileStatus.textContent =
+                            "Sua sessão expirou. Entre novamente.";
+
+                        saveProfileButton.disabled =
+                            false;
+
+                        return;
+                    }
+
+
+                    const user =
+                        sessionData
+                            .session
+                            .user;
+
+
+                    const fullName =
+                        fullNameInput.value.trim();
+
+
+                    const username =
+                        usernameInput.value
+                            .trim()
+                            .toLowerCase()
+                            .replace(
+                                /[^a-z0-9_]/g,
+                                ""
+                            );
+
+
+                    const bio =
+                        bioInput.value.trim();
+
+
+                    if (!username) {
+
+                        profileStatus.textContent =
+                            "Escolha um nome de usuário.";
+
+                        saveProfileButton.disabled =
+                            false;
+
+                        return;
+                    }
+
+
+                    const {
+                        error
+                    } =
+                        await supabaseClient
+                            .from("profiles")
+                            .update({
+
+                                full_name:
+                                    fullName,
+
+                                username:
+                                    username,
+
+                                bio:
+                                    bio
+
+                            })
+                            .eq(
+                                "id",
+                                user.id
+                            );
+
+
+                    if (error) {
+
+                        console.error(
+                            "Erro ao salvar perfil:",
+                            error
+                        );
+
+
+                        if (
+                            error.code === "23505"
+                        ) {
+
+                            profileStatus.textContent =
+                                "Esse nome de usuário já está sendo usado.";
+
+                        } else {
+
+                            profileStatus.textContent =
+                                "Erro ao salvar perfil: " +
+                                error.message;
+                        }
+
+
+                        saveProfileButton.disabled =
+                            false;
+
+                        return;
+                    }
+
+
+                    await loadProfile(
+                        user
+                    );
+
+
+                    profileStatus.textContent =
+                        "Perfil salvo com sucesso!";
+
+
+                    editArea.classList.remove(
+                        "active"
+                    );
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+
+                    profileStatus.textContent =
+                        "Erro inesperado ao salvar.";
+
+                }
+
+
+                saveProfileButton.disabled =
+                    false;
+
+            }
+        );
+
 
 
         /* ==========================================
            CRIAR CONTA
            ========================================== */
 
-        createAccount.addEventListener("click", function (event) {
+        createAccount.addEventListener(
+            "click",
+            function (event) {
 
-            event.preventDefault();
+                event.preventDefault();
 
-            message.textContent =
-                "A criação de contas será ativada na próxima etapa.";
 
-            message.className =
-                "message success";
+                message.textContent =
+                    "A criação de contas será ativada na próxima etapa.";
 
-        });
+
+                message.className =
+                    "message success";
+
+            }
+        );
+
+
+
+        /* ==========================================
+           SAIR
+           ========================================== */
+
+        logoutButton.addEventListener(
+            "click",
+            async function () {
+
+
+                logoutButton.disabled =
+                    true;
+
+
+                logoutButton.textContent =
+                    "Saindo...";
+
+
+                const {
+                    error
+                } =
+                    await supabaseClient
+                        .auth
+                        .signOut();
+
+
+                if (error) {
+
+                    console.error(
+                        "Erro ao sair:",
+                        error
+                    );
+
+
+                    logoutButton.disabled =
+                        false;
+
+                    logoutButton.textContent =
+                        "Sair do Mytos";
+
+                    return;
+                }
+
+
+                app.style.display =
+                    "none";
+
+
+                loginContainer.style.display =
+                    "block";
+
+
+                emailInput.value =
+                    "";
+
+                passwordInput.value =
+                    "";
+
+
+                message.textContent =
+                    "";
+
+
+                message.className =
+                    "message";
+
+
+                loginButton.disabled =
+                    false;
+
+
+                loginButton.textContent =
+                    "Entrar";
+
+
+                logoutButton.disabled =
+                    false;
+
+
+                logoutButton.textContent =
+                    "Sair do Mytos";
+
+            }
+        );
 
     });
 
 </script>
-<!-- ÁREA PRINCIPAL DO MYTOS -->
 
-<div id="app" style="display:none;">
 
-    <header style="
-        padding:20px;
-        background:#071b1f;
-        border-bottom:1px solid rgba(255,255,255,0.12);
-        text-align:center;
-    ">
-        <div style="
-            font-size:28px;
-            font-weight:800;
-            letter-spacing:4px;
-        ">
-            MYTOS
-        </div>
-
-        <div style="
-            color:#a9d8d8;
-            margin-top:5px;
-        ">
-            Conecte-se. Compartilhe. Pertença.
-        </div>
-    </header>
-
-    <main style="
-        max-width:900px;
-        margin:0 auto;
-        padding:25px 20px;
-    ">
-
-        <section style="
-            background:rgba(255,255,255,0.08);
-            border:1px solid rgba(255,255,255,0.12);
-            border-radius:20px;
-            padding:25px;
-            margin-bottom:20px;
-        ">
-
-            <h1 style="margin-top:0;">
-                Bem-vindo ao Mytos!
-            </h1>
-
-            <p id="userEmail" style="color:#a9d8d8;">
-                Carregando seu perfil...
-            </p>
-
-        </section>
-
-        <section style="
-            background:rgba(255,255,255,0.08);
-            border:1px solid rgba(255,255,255,0.12);
-            border-radius:20px;
-            padding:25px;
-        ">
-
-            <h2>
-                Seu espaço no Mytos
-            </h2>
-
-            <p style="color:#b8cccc;">
-                Em breve você poderá publicar, encontrar amigos
-                e participar de comunidades.
-            </p>
-
-        </section>
-
-    </main>
-
-</div>
 </body>
+
 </html>
