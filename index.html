@@ -520,6 +520,137 @@
         }
 
 
+  /* ==========================================
+   MURAL DE PUBLICAÇÕES
+   ========================================== */
+
+.mural-box {
+
+    margin-top: 20px;
+
+    background:
+        rgba(255,255,255,0.05);
+
+    border:
+        1px solid rgba(255,255,255,0.10);
+
+    border-radius: 18px;
+
+    padding: 20px;
+}
+
+
+.mural-title {
+
+    margin-top: 0;
+
+    margin-bottom: 5px;
+
+    font-size: 24px;
+}
+
+
+.mural-subtitle {
+
+    margin-top: 0;
+
+    color: #a9d8d8;
+
+    font-size: 14px;
+}
+
+
+.post-input {
+
+    min-height: 110px;
+
+    margin-top: 15px;
+}
+
+
+.posts-list {
+
+    margin-top: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+.post-card {
+
+    background:
+        rgba(255,255,255,0.06);
+
+    border:
+        1px solid rgba(255,255,255,0.10);
+
+    border-radius: 16px;
+
+    padding: 18px;
+}
+
+
+.post-author {
+
+    font-weight: bold;
+
+    color: #8ff5ef;
+
+    margin-bottom: 4px;
+}
+
+
+.post-date {
+
+    color: #78999b;
+
+    font-size: 12px;
+
+    margin-bottom: 12px;
+}
+
+
+.post-content {
+
+    color: #ffffff;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+}
+
+
+.delete-post-button {
+
+    width: auto;
+
+    margin-top: 14px;
+
+    padding: 8px 12px;
+
+    font-size: 13px;
+
+    background:
+        rgba(255,80,80,0.12);
+
+    color: #ffb5b5;
+
+    border:
+        1px solid rgba(255,80,80,0.20);
+}
+
+
+.delete-post-button:hover {
+
+    background:
+        rgba(255,80,80,0.20);
+             }    
         /* ==========================================
            RESPONSIVO
            ========================================== */
@@ -833,24 +964,47 @@
             </h2>
 
 
-            <div class="future-box">
+            <!-- ==========================================
+     MURAL DE PUBLICAÇÕES
+     ========================================== -->
 
-                <strong>
-                    O Mytos está começando a ganhar vida.
-                </strong>
+<div class="mural-box">
 
-                <br><br>
+    <h2 class="mural-title">
+        Mural do Mytos
+    </h2>
 
-                Em breve você poderá publicar,
-                encontrar amigos, participar de comunidades,
-                conversar e descobrir novos conteúdos.
+    <p class="mural-subtitle">
+        Compartilhe algo com a comunidade.
+    </p>
 
-                <br><br>
+    <textarea
+        id="postContent"
+        class="post-input"
+        placeholder="O que você está pensando?"
+        maxlength="1000"
+    ></textarea>
 
-                O próximo grande passo será o
-                <strong>mural de publicações</strong>.
+    <button
+        id="publishPostButton"
+        type="button"
+    >
+        Publicar
+    </button>
 
-            </div>
+    <div
+        id="postStatus"
+        class="status"
+    ></div>
+
+</div>
+
+
+<div
+    id="postsList"
+    class="posts-list"
+>
+</div>
 
 
             <button
@@ -1615,6 +1769,496 @@ document.addEventListener(
 
 
 
+      /* ==========================================
+   MURAL DE PUBLICAÇÕES
+   ========================================== */
+
+const postContent =
+    document.getElementById("postContent");
+
+const publishPostButton =
+    document.getElementById("publishPostButton");
+
+const postsList =
+    document.getElementById("postsList");
+
+const postStatus =
+    document.getElementById("postStatus");
+
+
+/* ==========================================
+   CARREGAR PUBLICAÇÕES
+   ========================================== */
+
+async function loadPosts() {
+
+    postsList.innerHTML =
+        "<div class='status'>Carregando publicações...</div>";
+
+
+    const {
+        data: posts,
+        error: postsError
+    } =
+        await supabaseClient
+            .from("posts")
+            .select(
+                "id, content, title, created_at, user_id"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (postsError) {
+
+        console.error(
+            "Erro ao carregar publicações:",
+            postsError
+        );
+
+        postsList.innerHTML =
+            "<div class='status'>Não foi possível carregar as publicações.</div>";
+
+        return;
+    }
+
+
+    if (!posts || posts.length === 0) {
+
+        postsList.innerHTML =
+            "<div class='status'>Ainda não há publicações. Seja o primeiro a publicar!</div>";
+
+        return;
+    }
+
+
+    /* ======================================
+       BUSCAR PERFIS DOS AUTORES
+       ====================================== */
+
+    const userIds =
+        [
+            ...new Set(
+                posts.map(
+                    function (post) {
+                        return post.user_id;
+                    }
+                )
+            )
+        ];
+
+
+    const {
+        data: profiles,
+        error: profilesError
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, full_name, username"
+            )
+            .in(
+                "id",
+                userIds
+            );
+
+
+    if (profilesError) {
+
+        console.error(
+            "Erro ao carregar autores:",
+            profilesError
+        );
+    }
+
+
+    const profilesMap =
+        new Map();
+
+
+    if (profiles) {
+
+        profiles.forEach(
+            function (profile) {
+
+                profilesMap.set(
+                    profile.id,
+                    profile
+                );
+
+            }
+        );
+
+    }
+
+
+    postsList.innerHTML = "";
+
+
+    /* ======================================
+       MOSTRAR PUBLICAÇÕES
+       ====================================== */
+
+    posts.forEach(
+        function (post) {
+
+            const postCard =
+                document.createElement("div");
+
+            postCard.className =
+                "post-card";
+
+
+            const profile =
+                profilesMap.get(
+                    post.user_id
+                );
+
+
+            const author =
+                document.createElement("div");
+
+            author.className =
+                "post-author";
+
+
+            if (
+                profile &&
+                profile.full_name &&
+                profile.full_name.trim()
+            ) {
+
+                author.textContent =
+                    profile.full_name;
+
+            } else if (
+                profile &&
+                profile.username
+            ) {
+
+                author.textContent =
+                    "@" + profile.username;
+
+            } else {
+
+                author.textContent =
+                    "Usuário do Mytos";
+
+            }
+
+
+            const date =
+                document.createElement("div");
+
+            date.className =
+                "post-date";
+
+
+            date.textContent =
+                new Date(
+                    post.created_at
+                ).toLocaleString(
+                    "pt-BR"
+                );
+
+
+            const content =
+                document.createElement("div");
+
+            content.className =
+                "post-content";
+
+
+            content.textContent =
+                post.content || "";
+
+
+            postCard.appendChild(
+                author
+            );
+
+
+            postCard.appendChild(
+                date
+            );
+
+
+            postCard.appendChild(
+                content
+            );
+
+
+            /* ==================================
+               BOTÃO EXCLUIR
+               ================================== */
+
+            supabaseClient
+                .auth
+                .getSession()
+                .then(
+                    function (sessionResult) {
+
+                        const session =
+                            sessionResult
+                                .data
+                                .session;
+
+
+                        if (
+                            session &&
+                            session.user &&
+                            session.user.id ===
+                                post.user_id
+                        ) {
+
+                            const deleteButton =
+                                document.createElement(
+                                    "button"
+                                );
+
+
+                            deleteButton.type =
+                                "button";
+
+
+                            deleteButton.className =
+                                "delete-post-button";
+
+
+                            deleteButton.textContent =
+                                "Excluir";
+
+
+                            deleteButton.addEventListener(
+                                "click",
+                                async function () {
+
+                                    const confirmed =
+                                        confirm(
+                                            "Deseja excluir esta publicação?"
+                                        );
+
+
+                                    if (!confirmed) {
+
+                                        return;
+                                    }
+
+
+                                    deleteButton.disabled =
+                                        true;
+
+
+                                    deleteButton.textContent =
+                                        "Excluindo...";
+
+
+                                    const {
+                                        error
+                                    } =
+                                        await supabaseClient
+                                            .from("posts")
+                                            .delete()
+                                            .eq(
+                                                "id",
+                                                post.id
+                                            );
+
+
+                                    if (error) {
+
+                                        console.error(
+                                            "Erro ao excluir publicação:",
+                                            error
+                                        );
+
+
+                                        deleteButton.disabled =
+                                            false;
+
+
+                                        deleteButton.textContent =
+                                            "Excluir";
+
+
+                                        alert(
+                                            "Não foi possível excluir a publicação."
+                                        );
+
+
+                                        return;
+                                    }
+
+
+                                    await loadPosts();
+
+                                }
+                            );
+
+
+                            postCard.appendChild(
+                                deleteButton
+                            );
+
+                        }
+
+                    }
+                );
+
+
+            postsList.appendChild(
+                postCard
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   PUBLICAR
+   ========================================== */
+
+publishPostButton.addEventListener(
+    "click",
+    async function () {
+
+        const content =
+            postContent.value.trim();
+
+
+        if (!content) {
+
+            postStatus.textContent =
+                "Escreva algo antes de publicar.";
+
+            return;
+        }
+
+
+        publishPostButton.disabled =
+            true;
+
+
+        publishPostButton.textContent =
+            "Publicando...";
+
+
+        postStatus.textContent =
+            "";
+
+
+        try {
+
+            const {
+                data: sessionData,
+                error: sessionError
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (
+                sessionError ||
+                !sessionData ||
+                !sessionData.session
+            ) {
+
+                postStatus.textContent =
+                    "Sua sessão expirou. Entre novamente.";
+
+                return;
+            }
+
+
+            const user =
+                sessionData
+                    .session
+                    .user;
+
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .from("posts")
+                    .insert({
+
+                        user_id:
+                            user.id,
+
+                        title:
+                            "",
+
+                        content:
+                            content
+
+                    });
+
+
+            if (error) {
+
+                console.error(
+                    "Erro ao publicar:",
+                    error
+                );
+
+
+                postStatus.textContent =
+                    "Erro ao publicar: " +
+                    error.message;
+
+                return;
+            }
+
+
+            postContent.value =
+                "";
+
+
+            postStatus.textContent =
+                "Publicado com sucesso!";
+
+
+            await loadPosts();
+
+
+        } catch (error) {
+
+            console.error(
+                "Erro inesperado:",
+                error
+            );
+
+
+            postStatus.textContent =
+                "Erro inesperado ao publicar.";
+
+        }
+
+
+        publishPostButton.disabled =
+            false;
+
+
+        publishPostButton.textContent =
+            "Publicar";
+
+    }
+);
+
+
+/* ==========================================
+   CARREGAR MURAL
+   ========================================== */
+
+loadPosts();
         /* ==========================================
            SAIR
            ========================================== */
