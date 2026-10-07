@@ -2218,7 +2218,6 @@ async function loadLikeState() {
 likeButton.addEventListener(
     "click",
     async function () {
-alert("O CLIQUE DA CURTIDA ESTÁ FUNCIONANDO!");
         
         likeButton.disabled =
             true;
@@ -2234,23 +2233,7 @@ alert("O CLIQUE DA CURTIDA ESTÁ FUNCIONANDO!");
                     .auth
                     .getSession();
 
-        if (
-    sessionError ||
-    !sessionData ||
-    !sessionData.session
-) {
-
-    alert(
-        "ERRO: O MYTOS NÃO ENCONTROU SUA SESSÃO!"
-    );
-
-} else {
-
-    alert(
-        "SESSÃO DO USUÁRIO ESTÁ FUNCIONANDO!"
-    );
-
-        }
+        
 
             if (
                 sessionError ||
@@ -2305,9 +2288,7 @@ alert("O CLIQUE DA CURTIDA ESTÁ FUNCIONANDO!");
     return;
 }
 
-alert(
-    "CONSULTA DA CURTIDA FUNCIONOU!"
-);
+
 
 
             if (existingLike) {
