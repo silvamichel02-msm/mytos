@@ -2345,13 +2345,22 @@ alert("O CLIQUE DA CURTIDA ESTÁ FUNCIONANDO!");
 
                 if (insertLikeError) {
 
-                    console.error(
-                        "Erro ao adicionar curtida:",
-                        insertLikeError
-                    );
+    alert(
+        "ERRO AO GRAVAR CURTIDA: " +
+        insertLikeError.message
+    );
 
-                    return;
-                }
+    console.error(
+        "Erro ao adicionar curtida:",
+        insertLikeError
+    );
+
+    return;
+}
+
+alert(
+    "CURTIDA GRAVADA NO SUPABASE!"
+);
 
             }
 
