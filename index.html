@@ -2055,6 +2055,310 @@ async function loadPosts() {
 
 
             /* ==================================
+   CURTIDAS
+   ================================== */
+
+const likeArea =
+    document.createElement("div");
+
+likeArea.className =
+    "post-actions";
+
+
+const likeButton =
+    document.createElement("button");
+
+likeButton.type =
+    "button";
+
+likeButton.className =
+    "like-button";
+
+
+const likeCount =
+    document.createElement("span");
+
+likeCount.className =
+    "like-count";
+
+
+likeButton.textContent =
+    "♡ Curtir";
+
+
+likeCount.textContent =
+    "0 curtidas";
+
+
+likeArea.appendChild(
+    likeButton
+);
+
+likeArea.appendChild(
+    likeCount
+);
+
+
+postCard.appendChild(
+    likeArea
+);
+
+
+/* ==================================
+   CARREGAR ESTADO DA CURTIDA
+   ================================== */
+
+async function loadLikeState() {
+
+    try {
+
+        const {
+            data: sessionData
+        } =
+            await supabaseClient
+                .auth
+                .getSession();
+
+
+        const user =
+            sessionData &&
+            sessionData.session
+                ? sessionData.session.user
+                : null;
+
+
+        const {
+            data: likes,
+            error: likesError
+        } =
+            await supabaseClient
+                .from("post_likes")
+                .select("user_id")
+                .eq(
+                    "post_id",
+                    post.id
+                );
+
+
+        if (likesError) {
+
+            console.error(
+                "Erro ao carregar curtidas:",
+                likesError
+            );
+
+            return;
+        }
+
+
+        const totalLikes =
+            likes
+                ? likes.length
+                : 0;
+
+
+        likeCount.textContent =
+            totalLikes +
+            (
+                totalLikes === 1
+                    ? " curtida"
+                    : " curtidas"
+            );
+
+
+        const userLiked =
+            user &&
+            likes &&
+            likes.some(
+                function (like) {
+
+                    return like.user_id ===
+                        user.id;
+
+                }
+            );
+
+
+        if (userLiked) {
+
+            likeButton.textContent =
+                "♥ Curtido";
+
+            likeButton.classList.add(
+                "liked"
+            );
+
+        } else {
+
+            likeButton.textContent =
+                "♡ Curtir";
+
+            likeButton.classList.remove(
+                "liked"
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar estado da curtida:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ==================================
+   CURTIR / DESCURTIR
+   ================================== */
+
+likeButton.addEventListener(
+    "click",
+    async function () {
+
+        likeButton.disabled =
+            true;
+
+
+        try {
+
+            const {
+                data: sessionData,
+                error: sessionError
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+
+            if (
+                sessionError ||
+                !sessionData ||
+                !sessionData.session
+            ) {
+
+                alert(
+                    "Sua sessão expirou. Entre novamente."
+                );
+
+                return;
+            }
+
+
+            const user =
+                sessionData
+                    .session
+                    .user;
+
+
+            const {
+                data: existingLike,
+                error: existingLikeError
+            } =
+                await supabaseClient
+                    .from("post_likes")
+                    .select("id")
+                    .eq(
+                        "post_id",
+                        post.id
+                    )
+                    .eq(
+                        "user_id",
+                        user.id
+                    )
+                    .maybeSingle();
+
+
+            if (existingLikeError) {
+
+                console.error(
+                    "Erro ao verificar curtida:",
+                    existingLikeError
+                );
+
+                return;
+            }
+
+
+            if (existingLike) {
+
+                const {
+                    error: deleteLikeError
+                } =
+                    await supabaseClient
+                        .from("post_likes")
+                        .delete()
+                        .eq(
+                            "id",
+                            existingLike.id
+                        );
+
+
+                if (deleteLikeError) {
+
+                    console.error(
+                        "Erro ao remover curtida:",
+                        deleteLikeError
+                    );
+
+                    return;
+                }
+
+            } else {
+
+                const {
+                    error: insertLikeError
+                } =
+                    await supabaseClient
+                        .from("post_likes")
+                        .insert({
+
+                            post_id:
+                                post.id,
+
+                            user_id:
+                                user.id
+
+                        });
+
+
+                if (insertLikeError) {
+
+                    console.error(
+                        "Erro ao adicionar curtida:",
+                        insertLikeError
+                    );
+
+                    return;
+                }
+
+            }
+
+
+            await loadLikeState();
+
+
+        } finally {
+
+            likeButton.disabled =
+                false;
+
+        }
+
+    }
+);
+
+
+/* ==================================
+   INICIALIZAR CURTIDAS
+   ================================== */
+
+loadLikeState();
+
+            /* ==================================
                BOTÃO EXCLUIR
                ================================== */
 
