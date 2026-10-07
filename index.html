@@ -2292,13 +2292,22 @@ alert("O CLIQUE DA CURTIDA ESTÁ FUNCIONANDO!");
 
             if (existingLikeError) {
 
-                console.error(
-                    "Erro ao verificar curtida:",
-                    existingLikeError
-                );
+    alert(
+        "ERRO AO VERIFICAR CURTIDA: " +
+        existingLikeError.message
+    );
 
-                return;
-            }
+    console.error(
+        "Erro ao verificar curtida:",
+        existingLikeError
+    );
+
+    return;
+}
+
+alert(
+    "CONSULTA DA CURTIDA FUNCIONOU!"
+);
 
 
             if (existingLike) {
