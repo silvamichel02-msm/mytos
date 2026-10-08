@@ -2571,6 +2571,97 @@ commentsArea.appendChild(
 postCard.appendChild(
     commentsArea
 );
+            /* ==================================
+   CARREGAR COMENTÁRIOS
+   ================================== */
+
+async function loadComments() {
+
+    commentsList.innerHTML = "";
+
+    const {
+        data: comments,
+        error: commentsError
+    } =
+        await supabaseClient
+            .from("post_comments")
+            .select(
+                "id, content, created_at, user_id"
+            )
+            .eq(
+                "post_id",
+                post.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+    if (commentsError) {
+
+        console.error(
+            "Erro ao carregar comentários:",
+            commentsError
+        );
+
+        return;
+    }
+
+    if (!comments || comments.length === 0) {
+
+        return;
+    }
+
+    comments.forEach(
+        function (comment) {
+
+            const commentItem =
+                document.createElement("div");
+
+            commentItem.className =
+                "comment-item";
+
+            const commentAuthor =
+                document.createElement("div");
+
+            commentAuthor.className =
+                "comment-author";
+
+            commentAuthor.textContent =
+                "Usuário do Mytos";
+
+            const commentContent =
+                document.createElement("div");
+
+            commentContent.className =
+                "comment-content";
+
+            commentContent.textContent =
+                comment.content;
+
+            commentItem.appendChild(
+                commentAuthor
+            );
+
+            commentItem.appendChild(
+                commentContent
+            );
+
+            commentsList.appendChild(
+                commentItem
+            );
+
+        }
+    );
+}
+
+/* ==================================
+   INICIALIZAR COMENTÁRIOS
+   ================================== */
+
+loadComments();
      /* ==================================
    SALVAR COMENTÁRIO
    ================================== */
@@ -2643,7 +2734,7 @@ commentButton.addEventListener(
 
                 return;
             }
-
+await loadComments();
             commentInput.value = "";
 
         } finally {
