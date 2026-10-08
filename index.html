@@ -2503,7 +2503,156 @@ likeButton.addEventListener(
    ================================== */
 
 loadLikeState();
+/* ==================================
+   COMENTÁRIOS
+   ================================== */
 
+const commentsArea =
+    document.createElement("div");
+
+commentsArea.className =
+    "comments-area";
+
+const commentsTitle =
+    document.createElement("div");
+
+commentsTitle.className =
+    "comments-title";
+
+commentsTitle.textContent =
+    "💬 Comentários";
+
+const commentInput =
+    document.createElement("input");
+
+commentInput.type =
+    "text";
+
+commentInput.className =
+    "comment-input";
+
+commentInput.placeholder =
+    "Escreva um comentário...";
+
+const commentButton =
+    document.createElement("button");
+
+commentButton.type =
+    "button";
+
+commentButton.className =
+    "comment-button";
+
+commentButton.textContent =
+    "Comentar";
+
+const commentsList =
+    document.createElement("div");
+
+commentsList.className =
+    "comments-list";
+
+commentsArea.appendChild(
+    commentsTitle
+);
+
+commentsArea.appendChild(
+    commentInput
+);
+
+commentsArea.appendChild(
+    commentButton
+);
+
+commentsArea.appendChild(
+    commentsList
+);
+
+postCard.appendChild(
+    commentsArea
+);
+     /* ==================================
+   SALVAR COMENTÁRIO
+   ================================== */
+
+commentButton.addEventListener(
+    "click",
+    async function () {
+
+        const commentText =
+            commentInput.value.trim();
+
+        if (!commentText) {
+            return;
+        }
+
+        commentButton.disabled =
+            true;
+
+        try {
+
+            const {
+                data: sessionData,
+                error: sessionError
+            } =
+                await supabaseClient
+                    .auth
+                    .getSession();
+
+            if (
+                sessionError ||
+                !sessionData ||
+                !sessionData.session
+            ) {
+                alert(
+                    "Sua sessão expirou. Entre novamente."
+                );
+                return;
+            }
+
+            const user =
+                sessionData
+                    .session
+                    .user;
+
+            const {
+                error: insertCommentError
+            } =
+                await supabaseClient
+                    .from("post_comments")
+                    .insert({
+                        post_id:
+                            post.id,
+                        user_id:
+                            user.id,
+                        content:
+                            commentText
+                    });
+
+            if (insertCommentError) {
+
+                alert(
+                    "ERRO AO GRAVAR COMENTÁRIO: " +
+                    insertCommentError.message
+                );
+
+                console.error(
+                    "Erro ao gravar comentário:",
+                    insertCommentError
+                );
+
+                return;
+            }
+
+            commentInput.value = "";
+
+        } finally {
+
+            commentButton.disabled =
+                false;
+        }
+    }
+);       
             /* ==================================
                BOTÃO EXCLUIR
                ================================== */
