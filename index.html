@@ -1677,12 +1677,36 @@ await loadPosts();
                 bio;
 
 
-            /* PRIMEIRA LETRA DO NOME */
+            /* MOSTRAR FOTO DE PERFIL OU INICIAL */
 
-            profileAvatar.textContent =
-                name
-                    .charAt(0)
-                    .toUpperCase();
+profileAvatar.replaceChildren();
+
+if (profile.avatar_url) {
+
+    const avatarImage =
+        document.createElement("img");
+
+    avatarImage.src = profile.avatar_url;
+    avatarImage.alt = "Foto de perfil";
+    avatarImage.style.width = "100%";
+    avatarImage.style.height = "100%";
+    avatarImage.style.objectFit = "cover";
+    avatarImage.style.borderRadius = "50%";
+
+    avatarImage.onerror = function () {
+        profileAvatar.replaceChildren();
+        profileAvatar.textContent =
+            name.charAt(0).toUpperCase();
+    };
+
+    profileAvatar.appendChild(avatarImage);
+
+} else {
+
+    profileAvatar.textContent =
+        name.charAt(0).toUpperCase();
+
+    }
 
 
             /* PREENCHE CAMPOS DE EDIÇÃO */
