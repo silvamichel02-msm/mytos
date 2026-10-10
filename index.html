@@ -1044,6 +1044,38 @@
     class="status"
 ></div>
 
+<!-- JANELA DE RECORTE DA FOTO DE PERFIL -->
+<div id="avatarCropModal" class="avatar-crop-modal" style="display: none;">
+    <div class="avatar-crop-dialog">
+        <h3>Ajustar foto de perfil</h3>
+
+        <p>Arraste a imagem para posicionar e use o zoom para ajustar.</p>
+
+        <div class="avatar-crop-container">
+            <img id="avatarCropImage" alt="Prévia da foto de perfil">
+        </div>
+
+        <label for="avatarCropZoom">Zoom da imagem</label>
+        <input
+            id="avatarCropZoom"
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+        >
+
+        <div class="avatar-crop-actions">
+            <button id="cancelAvatarCrop" type="button" class="secondary-button">
+                Cancelar
+            </button>
+
+            <button id="confirmAvatarCrop" type="button">
+                Usar esta foto
+            </button>
+        </div>
+    </div>
+</div>
+
 
             <div
                 id="profileName"
