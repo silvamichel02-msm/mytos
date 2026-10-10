@@ -1485,139 +1485,354 @@ const avatarStatus =
 
 /* ==========================================
    FOTO DE PERFIL — MYTOS
+   EDITOR, RECORTE, ZOOM E ENVIO
    ========================================== */
 
-changeAvatarButton.addEventListener("click", function () {
-    avatarFileInput.click();
-});
+const avatarCropModal =
+    document.getElementById("avatarCropModal");
 
-avatarFileInput.addEventListener("change", async function () {
+const avatarCropImage =
+    document.getElementById("avatarCropImage");
 
-    const file = avatarFileInput.files[0];
+const avatarCropZoom =
+    document.getElementById("avatarCropZoom");
 
-    if (!file) {
-        return;
+const cancelAvatarCrop =
+    document.getElementById("cancelAvatarCrop");
+
+const confirmAvatarCrop =
+    document.getElementById("confirmAvatarCrop");
+
+let avatarCropper = null;
+let avatarObjectUrl = null;
+let lastAvatarZoomValue = 0;
+
+
+/* FECHAR E LIMPAR O EDITOR */
+
+function closeAvatarCrop() {
+
+    avatarCropModal.style.display = "none";
+
+    if (avatarCropper) {
+        avatarCropper.destroy();
+        avatarCropper = null;
     }
 
-    avatarStatus.textContent = "";
+    avatarCropImage.removeAttribute("src");
 
-    const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-        avatarStatus.textContent =
-            "Escolha uma imagem JPG, PNG ou WebP.";
-        avatarFileInput.value = "";
-        return;
+    if (avatarObjectUrl) {
+        URL.revokeObjectURL(avatarObjectUrl);
+        avatarObjectUrl = null;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-        avatarStatus.textContent =
-            "A imagem deve ter no máximo 2 MB.";
-        avatarFileInput.value = "";
-        return;
+    avatarFileInput.value = "";
+    avatarCropZoom.value = "0";
+    lastAvatarZoomValue = 0;
+}
+
+
+/* ABRIR SELETOR DE FOTOS */
+
+changeAvatarButton.addEventListener(
+    "click",
+    function () {
+        avatarFileInput.click();
     }
+);
 
-    changeAvatarButton.disabled = true;
-    changeAvatarButton.textContent = "Enviando foto...";
 
-    try {
+/* SELECIONAR E VALIDAR A FOTO */
 
-        const {
-            data: sessionData,
-            error: sessionError
-        } = await supabaseClient.auth.getSession();
+avatarFileInput.addEventListener(
+    "change",
+    function () {
 
-        if (
-            sessionError ||
-            !sessionData ||
-            !sessionData.session
-        ) {
-            throw new Error(
-                "Sua sessão expirou. Entre novamente."
+        const file = avatarFileInput.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        avatarStatus.textContent = "";
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+
+            avatarStatus.textContent =
+                "Escolha uma imagem JPG, PNG ou WebP.";
+
+            avatarFileInput.value = "";
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+
+            avatarStatus.textContent =
+                "A imagem original deve ter no máximo 2 MB.";
+
+            avatarFileInput.value = "";
+            return;
+        }
+
+        if (typeof Cropper === "undefined") {
+
+            avatarStatus.textContent =
+                "O editor de fotos não carregou. Atualize a página e tente novamente.";
+
+            avatarFileInput.value = "";
+            return;
+        }
+
+        if (avatarCropper) {
+            avatarCropper.destroy();
+            avatarCropper = null;
+        }
+
+        if (avatarObjectUrl) {
+            URL.revokeObjectURL(avatarObjectUrl);
+        }
+
+        avatarObjectUrl = URL.createObjectURL(file);
+
+        avatarCropZoom.value = "0";
+        lastAvatarZoomValue = 0;
+
+        avatarCropImage.onload = function () {
+
+            avatarCropper = new Cropper(
+                avatarCropImage,
+                {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: "move",
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    background: false,
+                    zoomable: true,
+                    zoomOnWheel: true,
+                    movable: true,
+                    cropBoxResizable: false,
+                    guides: false,
+                    center: true
+                }
             );
-        }
+        };
 
-        const user = sessionData.session.user;
+        avatarCropImage.onerror = function () {
 
-        const extension = {
-            "image/jpeg": "jpg",
-            "image/png": "png",
-            "image/webp": "webp"
-        }[file.type];
+            avatarStatus.textContent =
+                "Não foi possível abrir essa imagem.";
 
-        const filePath =
-            user.id + "/" +
-            Date.now() + "." +
-            extension;
+            closeAvatarCrop();
+        };
 
-        const {
-            error: uploadError
-        } = await supabaseClient
-            .storage
-            .from("Avatar")
-            .upload(filePath, file, {
-                contentType: file.type,
-                upsert: false
-            });
+        avatarCropImage.src = avatarObjectUrl;
 
-        if (uploadError) {
-            throw uploadError;
-        }
-
-        const {
-            data: publicData
-        } = supabaseClient
-            .storage
-            .from("Avatar")
-            .getPublicUrl(filePath);
-
-        const avatarUrl = publicData.publicUrl;
-
-        const {
-            error: updateError
-        } = await supabaseClient
-            .from("profiles")
-            .update({
-                avatar_url: avatarUrl
-            })
-            .eq("id", user.id);
-
-        if (updateError) {
-            throw updateError;
-        }
-
-        await loadProfile(user);
-
-        avatarStatus.textContent =
-            "Foto de perfil atualizada com sucesso!";
-
-    } catch (error) {
-
-        console.error(
-            "Erro ao atualizar foto:",
-            error
-        );
-
-        avatarStatus.textContent =
-            "Erro ao atualizar foto: " +
-            error.message;
-
-    } finally {
-
-        changeAvatarButton.disabled = false;
-
-        changeAvatarButton.textContent =
-            "📷 Alterar foto";
-
-        avatarFileInput.value = "";
-
+        avatarCropModal.style.display = "flex";
     }
+);
 
-});
+
+/* CONTROLE DE ZOOM */
+
+avatarCropZoom.addEventListener(
+    "input",
+    function () {
+
+        if (!avatarCropper) {
+            return;
+        }
+
+        const currentValue =
+            Number(avatarCropZoom.value);
+
+        const difference =
+            currentValue - lastAvatarZoomValue;
+
+        avatarCropper.zoom(difference / 100);
+
+        lastAvatarZoomValue = currentValue;
+    }
+);
+
+
+/* CANCELAR RECORTE */
+
+cancelAvatarCrop.addEventListener(
+    "click",
+    function () {
+
+        closeAvatarCrop();
+
+        avatarStatus.textContent =
+            "Alteração de foto cancelada.";
+    }
+);
+
+
+/* CONFIRMAR RECORTE E ENVIAR */
+
+confirmAvatarCrop.addEventListener(
+    "click",
+    async function () {
+
+        if (!avatarCropper) {
+
+            avatarStatus.textContent =
+                "Selecione uma foto antes de continuar.";
+
+            return;
+        }
+
+        confirmAvatarCrop.disabled = true;
+        changeAvatarButton.disabled = true;
+
+        confirmAvatarCrop.textContent =
+            "Preparando foto...";
+
+        avatarStatus.textContent = "";
+
+        try {
+
+            const {
+                data: sessionData,
+                error: sessionError
+            } = await supabaseClient.auth.getSession();
+
+            if (
+                sessionError ||
+                !sessionData ||
+                !sessionData.session
+            ) {
+                throw new Error(
+                    "Sua sessão expirou. Entre novamente."
+                );
+            }
+
+            const user = sessionData.session.user;
+
+            const canvas =
+                avatarCropper.getCroppedCanvas({
+                    width: 512,
+                    height: 512,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: "high"
+                });
+
+            if (!canvas) {
+                throw new Error(
+                    "Não foi possível gerar o recorte da foto."
+                );
+            }
+
+            const croppedBlob = await new Promise(
+                function (resolve, reject) {
+
+                    canvas.toBlob(
+                        function (blob) {
+
+                            if (!blob) {
+                                reject(
+                                    new Error(
+                                        "Falha ao preparar a imagem."
+                                    )
+                                );
+
+                                return;
+                            }
+
+                            resolve(blob);
+                        },
+                        "image/webp",
+                        0.90
+                    );
+                }
+            );
+
+            const filePath =
+                user.id + "/" +
+                Date.now() + ".webp";
+
+            confirmAvatarCrop.textContent =
+                "Enviando foto...";
+
+            const {
+                error: uploadError
+            } = await supabaseClient
+                .storage
+                .from("Avatar")
+                .upload(
+                    filePath,
+                    croppedBlob,
+                    {
+                        contentType: "image/webp",
+                        upsert: false
+                    }
+                );
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            const {
+                data: publicData
+            } = supabaseClient
+                .storage
+                .from("Avatar")
+                .getPublicUrl(filePath);
+
+            const avatarUrl =
+                publicData.publicUrl;
+
+            const {
+                error: updateError
+            } = await supabaseClient
+                .from("profiles")
+                .update({
+                    avatar_url: avatarUrl
+                })
+                .eq("id", user.id);
+
+            if (updateError) {
+                throw updateError;
+            }
+
+            closeAvatarCrop();
+
+            await loadProfile(user);
+
+            avatarStatus.textContent =
+                "Foto de perfil atualizada com sucesso!";
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao atualizar foto:",
+                error
+            );
+
+            avatarStatus.textContent =
+                "Erro ao atualizar foto: " +
+                error.message;
+
+        } finally {
+
+            confirmAvatarCrop.disabled = false;
+            changeAvatarButton.disabled = false;
+
+            confirmAvatarCrop.textContent =
+                "Usar esta foto";
+        }
+    }
+);
+
+
         /* ==========================================
            FUNÇÃO: MOSTRAR ÁREA PRINCIPAL
            ========================================== */
