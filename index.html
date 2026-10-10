@@ -1367,7 +1367,141 @@ const avatarStatus =
                 SUPABASE_PUBLISHABLE_KEY
             );
 
+/* ==========================================
+   FOTO DE PERFIL — MYTOS
+   ========================================== */
 
+changeAvatarButton.addEventListener("click", function () {
+    avatarFileInput.click();
+});
+
+avatarFileInput.addEventListener("change", async function () {
+
+    const file = avatarFileInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    avatarStatus.textContent = "";
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+        avatarStatus.textContent =
+            "Escolha uma imagem JPG, PNG ou WebP.";
+        avatarFileInput.value = "";
+        return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+        avatarStatus.textContent =
+            "A imagem deve ter no máximo 2 MB.";
+        avatarFileInput.value = "";
+        return;
+    }
+
+    changeAvatarButton.disabled = true;
+    changeAvatarButton.textContent = "Enviando foto...";
+
+    try {
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (
+            sessionError ||
+            !sessionData ||
+            !sessionData.session
+        ) {
+            throw new Error(
+                "Sua sessão expirou. Entre novamente."
+            );
+        }
+
+        const user = sessionData.session.user;
+
+        const extension = {
+            "image/jpeg": "jpg",
+            "image/png": "png",
+            "image/webp": "webp"
+        }[file.type];
+
+        const filePath =
+            user.id + "/" +
+            Date.now() + "." +
+            extension;
+
+        const {
+            error: uploadError
+        } = await supabaseClient
+            .storage
+            .from("Avatar")
+            .upload(filePath, file, {
+                contentType: file.type,
+                upsert: false
+            });
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const {
+            data: publicData
+        } = supabaseClient
+            .storage
+            .from("Avatar")
+            .getPublicUrl(filePath);
+
+        const avatarUrl = publicData.publicUrl;
+
+        const {
+            error: updateError
+        } = await supabaseClient
+            .from("profiles")
+            .update({
+                avatar_url: avatarUrl
+            })
+            .eq("id", user.id);
+
+        if (updateError) {
+            throw updateError;
+        }
+
+        await loadProfile(user);
+
+        avatarStatus.textContent =
+            "Foto de perfil atualizada com sucesso!";
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao atualizar foto:",
+            error
+        );
+
+        avatarStatus.textContent =
+            "Erro ao atualizar foto: " +
+            error.message;
+
+    } finally {
+
+        changeAvatarButton.disabled = false;
+
+        changeAvatarButton.textContent =
+            "📷 Alterar foto";
+
+        avatarFileInput.value = "";
+
+    }
+
+});
         /* ==========================================
            FUNÇÃO: MOSTRAR ÁREA PRINCIPAL
            ========================================== */
