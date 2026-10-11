@@ -1112,7 +1112,7 @@
              PERFIL
              ====================================== -->
 
-        <section class="app-card">
+        <section id="profileSection" class="app-card">
 
             <div
     id="profileAvatar"
@@ -1291,7 +1291,7 @@
              ESPAÇO PRINCIPAL
              ====================================== -->
 
-        <section class="app-card">
+        <section id="homeSection" class="app-card">
 
             <h1 class="welcome-title">
                 Bem-vindo ao Mytos!
@@ -3681,16 +3681,28 @@ Object.entries(navItems).forEach(([id, item]) => {
 
         button.classList.add("active");
 
-        if (id === "navHome") {
-            navFeaturePanel.style.display = "none";
-            navMainGrid.style.display = "grid";
-            return;
-        }
+        
+if (id === "navHome") {
+    navFeaturePanel.style.display = "none";
+    navMainGrid.style.display = "grid";
+    document.getElementById("profileSection").style.display = "";
+    document.getElementById("homeSection").style.display = "";
+    return;
+}
 
-        navMainGrid.style.display = "none";
-        navFeaturePanel.style.display = "block";
-        navFeatureTitle.textContent = item.title;
-        navFeatureDescription.textContent = item.description;
+if (id === "navProfile") {
+    navFeaturePanel.style.display = "none";
+    navMainGrid.style.display = "grid";
+    document.getElementById("profileSection").style.display = "";
+    document.getElementById("homeSection").style.display = "none";
+    return;
+}
+
+navMainGrid.style.display = "none";
+navFeaturePanel.style.display = "block";
+navFeatureTitle.textContent = item.title;
+navFeatureDescription.textContent = item.description;
+
     });
 });
 
