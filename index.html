@@ -3633,6 +3633,67 @@ publishPostButton.addEventListener(
 
     });
 
+/* =========================================
+   NAVEGAÇÃO PRINCIPAL DO MYTOS
+========================================= */
+
+const navFeaturePanel = document.getElementById("navFeaturePanel");
+const navFeatureTitle = document.getElementById("navFeatureTitle");
+const navFeatureDescription = document.getElementById("navFeatureDescription");
+const navMainGrid = document.querySelector("main.app-grid");
+
+const navItems = {
+    navHome: {
+        title: "Início",
+        description: "Bem-vindo ao seu mural do Mytos."
+    },
+    navProfile: {
+        title: "Perfil",
+        description: "Edite seus dados e sua foto no cartão de perfil."
+    },
+    navFriends: {
+        title: "Amigos",
+        description: "A área de amigos será implementada na próxima etapa."
+    },
+    navCommunities: {
+        title: "Comunidades",
+        description: "A área de comunidades será implementada na próxima etapa."
+    },
+    navMessages: {
+        title: "Mensagens",
+        description: "A área de mensagens será implementada na próxima etapa."
+    },
+    navNotifications: {
+        title: "Notificações",
+        description: "A área de notificações será implementada na próxima etapa."
+    }
+};
+
+Object.entries(navItems).forEach(([id, item]) => {
+    const button = document.getElementById(id);
+
+    if (!button) return;
+
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".mytos-nav-button").forEach((navButton) => {
+            navButton.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        if (id === "navHome") {
+            navFeaturePanel.style.display = "none";
+            navMainGrid.style.display = "grid";
+            return;
+        }
+
+        navMainGrid.style.display = "none";
+        navFeaturePanel.style.display = "block";
+        navFeatureTitle.textContent = item.title;
+        navFeatureDescription.textContent = item.description;
+    });
+});
+
 </script>
 
 
