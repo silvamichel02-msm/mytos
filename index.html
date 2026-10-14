@@ -3708,6 +3708,11 @@ navFeaturePanel.style.display = "block";
 navFeatureTitle.textContent = item.title;
 navFeatureDescription.textContent = item.description;
 
+const friendsArea = document.getElementById("friendsArea");
+if (friendsArea) {
+  friendsArea.style.display =
+    id === "navFriends" ? "block" : "none";
+      }
     });
 });
 
