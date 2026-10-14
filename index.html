@@ -1991,7 +1991,137 @@ await loadPosts();
             displayProfile(data);
 
         }
+/* ==========================================
+   AMIGOS — CARREGAR USUÁRIOS
+   ========================================== */
 
+async function loadFriends() {
+    const friendsList = document.getElementById("friendsList");
+
+    if (!friendsList) {
+        return;
+    }
+
+    friendsList.textContent = "Carregando usuários...";
+
+    try {
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        const user = sessionData?.session?.user;
+
+        if (!user) {
+            friendsList.textContent =
+                "Entre na sua conta para encontrar pessoas.";
+            return;
+        }
+
+        const {
+            data: profiles,
+            error: profilesError
+        } = await supabaseClient
+            .from("profiles")
+            .select("id, username, full_name, avatar_url")
+            .neq("id", user.id)
+            .order("username", { ascending: true });
+
+        if (profilesError) {
+            throw profilesError;
+        }
+
+        friendsList.replaceChildren();
+
+        if (!profiles || profiles.length === 0) {
+            friendsList.textContent =
+                "Ainda não há outros usuários cadastrados.";
+            return;
+        }
+
+        profiles.forEach(function (profile) {
+            const card = document.createElement("div");
+
+            card.style.display = "flex";
+            card.style.alignItems = "center";
+            card.style.gap = "12px";
+            card.style.padding = "12px";
+            card.style.marginTop = "12px";
+            card.style.borderRadius = "12px";
+            card.style.background = "rgba(255,255,255,0.06)";
+
+            const avatar = document.createElement("div");
+
+            avatar.style.width = "48px";
+            avatar.style.height = "48px";
+            avatar.style.minWidth = "48px";
+            avatar.style.borderRadius = "50%";
+            avatar.style.overflow = "hidden";
+            avatar.style.display = "flex";
+            avatar.style.alignItems = "center";
+            avatar.style.justifyContent = "center";
+            avatar.style.background = "#1b7778";
+            avatar.style.color = "#ffffff";
+            avatar.style.fontWeight = "bold";
+
+            const name =
+                profile.full_name?.trim() ||
+                profile.username ||
+                "Usuário do Mytos";
+
+            if (profile.avatar_url) {
+                const image = document.createElement("img");
+
+                image.src = profile.avatar_url;
+                image.alt = "Foto de " + name;
+                image.style.width = "100%";
+                image.style.height = "100%";
+                image.style.objectFit = "cover";
+
+                image.onerror = function () {
+                    avatar.replaceChildren();
+                    avatar.textContent = name.charAt(0).toUpperCase();
+                };
+
+                avatar.appendChild(image);
+            } else {
+                avatar.textContent = name.charAt(0).toUpperCase();
+            }
+
+            const details = document.createElement("div");
+
+            const fullName = document.createElement("div");
+            fullName.textContent = name;
+            fullName.style.fontWeight = "bold";
+
+            const username = document.createElement("div");
+            username.textContent = profile.username
+                ? "@" + profile.username
+                : "";
+
+            username.style.color = "#a9d8d8";
+            username.style.marginTop = "4px";
+
+            details.appendChild(fullName);
+            details.appendChild(username);
+
+            card.appendChild(avatar);
+            card.appendChild(details);
+
+            friendsList.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar amigos:", error);
+
+        friendsList.textContent =
+            "Não foi possível carregar os usuários. Tente novamente.";
+    }
+    }
 
 
         /* ==========================================
@@ -3705,14 +3835,20 @@ if (id === "navProfile") {
 
 navMainGrid.style.display = "none";
 navFeaturePanel.style.display = "block";
+
 navFeatureTitle.textContent = item.title;
 navFeatureDescription.textContent = item.description;
 
 const friendsArea = document.getElementById("friendsArea");
+
 if (friendsArea) {
-  friendsArea.style.display =
-    id === "navFriends" ? "block" : "none";
-      }
+    friendsArea.style.display =
+        id === "navFriends" ? "block" : "none";
+}
+
+if (id === "navFriends") {
+    loadFriends();
+}
     });
 });
 
