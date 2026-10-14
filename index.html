@@ -2138,9 +2138,14 @@ addFriendButton.addEventListener("click", async function () {
             if (error.code === "23505") {
                 alert("Você já enviou uma solicitação para este usuário.");
             } else {
-                console.error("Erro ao enviar solicitação:", error);
-                alert("Não foi possível enviar a solicitação.");
-            }
+    console.error("Erro ao enviar solicitação:", error);
+
+    alert(
+        "Erro ao enviar solicitação:\n" +
+        error.code + "\n" +
+        error.message
+    );
+}
 
             addFriendButton.disabled = false;
             addFriendButton.textContent = "Adicionar amigo";
