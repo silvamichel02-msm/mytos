@@ -1995,7 +1995,7 @@ await loadPosts();
    AMIGOS — CARREGAR USUÁRIOS
    ========================================== */
 
-async function loadFriends() {
+window.loadFriends = async function () {
     const friendsList = document.getElementById("friendsList");
 
     if (!friendsList) {
@@ -2115,13 +2115,13 @@ async function loadFriends() {
             friendsList.appendChild(card);
         });
 
-    } catch (error) {
+        } catch (error) {
         console.error("Erro ao carregar amigos:", error);
 
         friendsList.textContent =
             "Não foi possível carregar os usuários. Tente novamente.";
     }
-    }
+};
 
 
         /* ==========================================
@@ -3847,7 +3847,7 @@ if (friendsArea) {
 }
 
 if (id === "navFriends") {
-    loadFriends();
+    window.loadFriends();
 }
     });
 });
