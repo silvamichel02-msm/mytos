@@ -2111,6 +2111,55 @@ window.loadFriends = async function () {
 
             card.appendChild(avatar);
             card.appendChild(details);
+            const addFriendButton = document.createElement("button");
+
+addFriendButton.textContent = "Adicionar amigo";
+addFriendButton.style.padding = "8px 12px";
+addFriendButton.style.borderRadius = "8px";
+addFriendButton.style.border = "none";
+addFriendButton.style.background = "#2ecc71";
+addFriendButton.style.color = "#ffffff";
+addFriendButton.style.cursor = "pointer";
+
+addFriendButton.addEventListener("click", async function () {
+    addFriendButton.disabled = true;
+    addFriendButton.textContent = "Enviando...";
+
+    try {
+        const { error } = await supabaseClient
+            .from("friend_requests")
+            .insert({
+                sender_id: user.id,
+                receiver_id: profile.id,
+                status: "pending"
+            });
+
+        if (error) {
+            if (error.code === "23505") {
+                alert("Você já enviou uma solicitação para este usuário.");
+            } else {
+                console.error("Erro ao enviar solicitação:", error);
+                alert("Não foi possível enviar a solicitação.");
+            }
+
+            addFriendButton.disabled = false;
+            addFriendButton.textContent = "Adicionar amigo";
+            return;
+        }
+
+        addFriendButton.textContent = "Solicitação enviada";
+        alert("Solicitação de amizade enviada!");
+
+    } catch (error) {
+        console.error("Erro inesperado:", error);
+        alert("Ocorreu um erro ao enviar a solicitação.");
+
+        addFriendButton.disabled = false;
+        addFriendButton.textContent = "Adicionar amigo";
+    }
+});
+
+card.appendChild(addFriendButton);
 
             friendsList.appendChild(card);
         });
