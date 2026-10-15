@@ -2836,7 +2836,7 @@ const postStatus =
    CARREGAR PUBLICAÇÕES
    ========================================== */
 
-async function loadPosts() {
+async function loadPosts(profileUserId = null) {
 
     postsList.innerHTML =
         "<div class='status'>Carregando publicações...</div>";
@@ -2853,7 +2853,7 @@ async function loadPosts() {
             )
         .eq(
     "user_id",
-    (await supabaseClient.auth.getSession()).data.session.user.id
+    profileUserId || (await supabaseClient.auth.getSession()).data.session.user.id
 )
             .order(
                 "created_at",
