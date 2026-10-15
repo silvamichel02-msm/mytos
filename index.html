@@ -2851,6 +2851,10 @@ async function loadPosts() {
             .select(
                 "id, content, title, created_at, user_id"
             )
+        .eq(
+    "user_id",
+    (await supabaseClient.auth.getSession()).data.session.user.id
+)
             .order(
                 "created_at",
                 {
