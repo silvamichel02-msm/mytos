@@ -2331,7 +2331,16 @@ window.loadReceivedRequests = async function () {
                         throw error;
                     }
 
-                    await window.loadReceivedRequests();
+                    
+await window.loadReceivedRequests();
+
+if (
+    newStatus === "accepted" &&
+    typeof window.loadConfirmedFriends === "function"
+) {
+    await window.loadConfirmedFriends();
+}
+
 
                 } catch (error) {
                     console.error("Erro ao atualizar solicitação:", error);
