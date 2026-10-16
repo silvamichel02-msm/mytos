@@ -1119,6 +1119,85 @@
     <p>As solicitações recebidas aparecerão aqui.</p>
 </div>
         </div>
+        
+<!-- ÁREA DE COMUNIDADES DO MYTOS -->
+<div id="communitiesArea" style="display: none; margin-top: 20px;">
+
+    <h3>Comunidades do Mytos</h3>
+    <p>Encontre pessoas que compartilham dos seus interesses.</p>
+
+    <div style="margin: 16px 0;">
+        <h4>Criar comunidade</h4>
+
+        <input
+            id="communityName"
+            type="text"
+            placeholder="Nome da comunidade"
+            maxlength="60"
+            style="width: 100%; margin-bottom: 8px;"
+        >
+
+        <textarea
+            id="communityDescription"
+            placeholder="Descreva sua comunidade"
+            maxlength="500"
+            style="width: 100%; margin-bottom: 8px;"
+        ></textarea>
+
+        <button id="createCommunityButton" type="button">
+            Criar comunidade
+        </button>
+    </div>
+
+    <hr>
+
+    <h4>Explorar comunidades</h4>
+
+    <input
+        id="communitySearch"
+        type="search"
+        placeholder="Buscar comunidades..."
+        style="width: 100%; margin-bottom: 12px;"
+    >
+
+    <div id="communitiesList">
+        <p>As comunidades aparecerão aqui.</p>
+    </div>
+
+    <hr>
+
+    <div id="communityDetails" style="display: none;">
+        <h3 id="communityDetailName"></h3>
+        <p id="communityDetailDescription"></p>
+        <p id="communityMemberCount">Participantes: 0</p>
+
+        <button id="communityMembershipButton" type="button">
+            Participar da comunidade
+        </button>
+
+        <hr>
+
+        <h4>Publicações da comunidade</h4>
+
+        <textarea
+            id="communityPostContent"
+            placeholder="Compartilhe algo com a comunidade..."
+            maxlength="3000"
+            style="width: 100%; margin-bottom: 8px;"
+        ></textarea>
+
+        <button id="publishCommunityPostButton" type="button">
+            Publicar
+        </button>
+
+        <div id="communityPostsList" style="margin-top: 16px;">
+            <p>As publicações aparecerão aqui.</p>
+        </div>
+    </div>
+
+</div>
+<!-- FIM DA ÁREA DE COMUNIDADES -->
+
     </section>
 
 
