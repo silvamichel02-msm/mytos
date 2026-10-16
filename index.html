@@ -2630,6 +2630,226 @@ window.loadConfirmedFriends = async function () {
     }
 };
 
+/* =========================================
+   MYTOS — COMUNIDADES: CRIAÇÃO E LISTAGEM
+   ========================================= */
+
+const communityNameInput =
+    document.getElementById("communityName");
+
+const communityDescriptionInput =
+    document.getElementById("communityDescription");
+
+const createCommunityButton =
+    document.getElementById("createCommunityButton");
+
+const communitiesList =
+    document.getElementById("communitiesList");
+
+const communitySearchInput =
+    document.getElementById("communitySearch");
+
+let mytosCommunitiesCache = [];
+
+function mytosCreateSlug(name) {
+    return name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+window.loadCommunities = async function () {
+    if (!communitiesList) return;
+
+    communitiesList.textContent = "Carregando comunidades...";
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("communities")
+            .select("id, name, slug, description, created_at")
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        mytosCommunitiesCache = data || [];
+        renderMytosCommunities();
+    } catch (error) {
+        console.error("Erro ao carregar comunidades:", error);
+        communitiesList.textContent =
+            "Não foi possível carregar as comunidades.";
+    }
+};
+
+function renderMytosCommunities() {
+    if (!communitiesList) return;
+
+    const searchTerm = (
+        communitySearchInput?.value || ""
+    ).trim().toLowerCase();
+
+    const filtered = mytosCommunitiesCache.filter(
+        community =>
+            community.name.toLowerCase().includes(searchTerm) ||
+            (community.description || "")
+                .toLowerCase()
+                .includes(searchTerm)
+    );
+
+    communitiesList.replaceChildren();
+
+    if (filtered.length === 0) {
+        communitiesList.textContent =
+            searchTerm
+                ? "Nenhuma comunidade encontrada."
+                : "Ainda não há comunidades. Crie a primeira!";
+        return;
+    }
+
+    filtered.forEach(community => {
+        const card = document.createElement("article");
+        card.style.cssText =
+            "padding:12px;margin-bottom:12px;" +
+            "border:1px solid rgba(128,128,128,.35);" +
+            "border-radius:12px;";
+
+        const title = document.createElement("h4");
+        title.textContent = community.name;
+
+        const description = document.createElement("p");
+        description.textContent =
+            community.description || "Sem descrição.";
+
+        const openButton = document.createElement("button");
+        openButton.type = "button";
+        openButton.textContent = "Ver comunidade";
+
+        openButton.addEventListener("click", () => {
+            if (typeof window.openCommunity === "function") {
+                window.openCommunity(community.id);
+            } else {
+                alert(
+                    "A comunidade foi encontrada. " +
+                    "A área de participação será conectada na próxima etapa."
+                );
+            }
+        });
+
+        card.append(title, description, openButton);
+        communitiesList.appendChild(card);
+    });
+}
+
+if (communitySearchInput) {
+    communitySearchInput.addEventListener(
+        "input",
+        renderMytosCommunities
+    );
+}
+
+if (createCommunityButton) {
+    createCommunityButton.addEventListener("click", async () => {
+        const name = communityNameInput?.value.trim() || "";
+        const description =
+            communityDescriptionInput?.value.trim() || "";
+
+        if (name.length < 3 || name.length > 60) {
+            alert("O nome deve ter entre 3 e 60 caracteres.");
+            return;
+        }
+
+        const slug = mytosCreateSlug(name);
+
+        if (!slug) {
+            alert("Escolha um nome válido para a comunidade.");
+            return;
+        }
+
+        createCommunityButton.disabled = true;
+        createCommunityButton.textContent = "Criando...";
+
+        try {
+            const {
+                data: sessionData,
+                error: sessionError
+            } = await supabaseClient.auth.getSession();
+
+            if (sessionError) throw sessionError;
+
+            const user = sessionData?.session?.user;
+
+            if (!user) {
+                alert("Entre na sua conta para criar uma comunidade.");
+                return;
+            }
+
+            const { data: community, error: communityError } =
+                await supabaseClient
+                    .from("communities")
+                    .insert({
+                        name,
+                        slug,
+                        description: description || null,
+                        created_by: user.id
+                    })
+                    .select("id, name, slug, description, created_at")
+                    .single();
+
+            if (communityError) throw communityError;
+
+            const { error: memberError } = await supabaseClient
+                .from("community_members")
+                .insert({
+                    community_id: community.id,
+                    user_id: user.id,
+                    role: "owner"
+                });
+
+            if (memberError) {
+                console.error(
+                    "A comunidade foi criada, mas o vínculo do proprietário falhou:",
+                    memberError
+                );
+
+                alert(
+                    "A comunidade foi criada, mas não foi possível " +
+                    "registrar sua participação como proprietário. " +
+                    "Não tente criá-la novamente; verifique o erro antes."
+                );
+
+                await window.loadCommunities();
+                return;
+            }
+
+            communityNameInput.value = "";
+            communityDescriptionInput.value = "";
+
+            await window.loadCommunities();
+
+            alert("Comunidade criada com sucesso!");
+        } catch (error) {
+            console.error("Erro ao criar comunidade:", error);
+
+            if (error.code === "23505") {
+                alert(
+                    "Já existe uma comunidade com esse identificador. " +
+                    "Tente outro nome."
+                );
+            } else {
+                alert(
+                    "Não foi possível criar a comunidade. " +
+                    "Confira o console e as políticas do Supabase."
+                );
+            }
+        } finally {
+            createCommunityButton.disabled = false;
+            createCommunityButton.textContent = "Criar comunidade";
+        }
+    });
+}
+
 
         /* ==========================================
            FUNÇÃO: MOSTRAR PERFIL
@@ -4350,18 +4570,32 @@ navFeaturePanel.style.display = "block";
 navFeatureTitle.textContent = item.title;
 navFeatureDescription.textContent = item.description;
 
-const friendsArea = document.getElementById("friendsArea");
+const friendsArea =
+    document.getElementById("friendsArea");
+
+const communitiesArea =
+    document.getElementById("communitiesArea");
 
 if (friendsArea) {
     friendsArea.style.display =
         id === "navFriends" ? "block" : "none";
 }
 
+if (communitiesArea) {
+    communitiesArea.style.display =
+        id === "navCommunities" ? "block" : "none";
+}
 
 if (id === "navFriends") {
     window.loadFriends();
     window.loadReceivedRequests();
     window.loadConfirmedFriends();
+}
+
+if (id === "navCommunities") {
+    if (typeof window.loadCommunities === "function") {
+        window.loadCommunities();
+    }
 }
 
     });
