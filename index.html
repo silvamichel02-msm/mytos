@@ -2288,6 +2288,68 @@ window.loadReceivedRequests = async function () {
 
             card.appendChild(name);
             card.appendChild(status);
+            
+            const actions = document.createElement("div");
+            actions.style.display = "flex";
+            actions.style.gap = "8px";
+            actions.style.marginTop = "12px";
+
+            const acceptButton = document.createElement("button");
+            acceptButton.type = "button";
+            acceptButton.textContent = "Aceitar";
+            acceptButton.style.width = "auto";
+            acceptButton.style.marginTop = "0";
+            acceptButton.style.padding = "8px 14px";
+
+            const rejectButton = document.createElement("button");
+            rejectButton.type = "button";
+            rejectButton.textContent = "Recusar";
+            rejectButton.style.width = "auto";
+            rejectButton.style.marginTop = "0";
+            rejectButton.style.padding = "8px 14px";
+            rejectButton.className = "danger-button";
+
+            async function updateRequest(newStatus, button) {
+                acceptButton.disabled = true;
+                rejectButton.disabled = true;
+                button.textContent = "Processando...";
+
+                try {
+                    const { error } = await supabaseClient
+                        .from("friend_requests")
+                        .update({ status: newStatus })
+                        .eq("id", request.id)
+                        .eq("receiver_id", user.id)
+                        .eq("status", "pending");
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    await window.loadReceivedRequests();
+
+                } catch (error) {
+                    console.error("Erro ao atualizar solicitação:", error);
+                    alert("Não foi possível atualizar a solicitação: " + error.message);
+                    acceptButton.disabled = false;
+                    rejectButton.disabled = false;
+                    acceptButton.textContent = "Aceitar";
+                    rejectButton.textContent = "Recusar";
+                }
+            }
+
+            acceptButton.addEventListener("click", function () {
+                updateRequest("accepted", acceptButton);
+            });
+
+            rejectButton.addEventListener("click", function () {
+                updateRequest("rejected", rejectButton);
+            });
+
+            actions.appendChild(acceptButton);
+            actions.appendChild(rejectButton);
+            card.appendChild(actions);
+
 
             receivedRequests.appendChild(card);
         });
