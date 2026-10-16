@@ -1014,7 +1014,7 @@
 
 
 
-<!-- ==========================================
+<!-- =====================================error0
      ÁREA PRINCIPAL DO MYTOS
      ========================================== -->
 
@@ -4269,10 +4269,13 @@ if (friendsArea) {
         id === "navFriends" ? "block" : "none";
 }
 
+
 if (id === "navFriends") {
     window.loadFriends();
     window.loadReceivedRequests();
+    window.loadConfirmedFriends();
 }
+
     });
 });
 
