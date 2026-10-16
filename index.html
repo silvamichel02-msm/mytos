@@ -2797,7 +2797,20 @@ if (createCommunityButton) {
                     .select("id, name, slug, description, created_at")
                     .single();
 
-            if (communityError) throw communityError;
+            if (communityError) {
+    console.error("ERRO AO CRIAR COMUNIDADE:", communityError);
+    alert(
+        "Erro ao criar comunidade: " +
+        communityError.message +
+        (communityError.details
+            ? "\nDetalhes: " + communityError.details
+            : "") +
+        (communityError.hint
+            ? "\nOrientação: " + communityError.hint
+            : "")
+    );
+    return;
+            }
 
             const { error: memberError } = await supabaseClient
                 .from("community_members")
