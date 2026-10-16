@@ -2791,7 +2791,7 @@ if (createCommunityButton) {
                     .insert({
                         name,
                         slug,
-                        description: description || null,
+                        description: description || "",
                         created_by: user.id
                     })
                     .select("id, name, slug, description, created_at")
