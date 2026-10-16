@@ -2851,6 +2851,345 @@ if (createCommunityButton) {
 }
 
 
+/* =========================================
+   MYTOS — ABRIR E PARTICIPAR DE COMUNIDADES
+   ========================================= */
+
+let currentMytosCommunity = null;
+let currentMytosMembership = null;
+
+const communityDetails =
+    document.getElementById("communityDetails");
+
+const communityDetailName =
+    document.getElementById("communityDetailName");
+
+const communityDetailDescription =
+    document.getElementById("communityDetailDescription");
+
+const communityMemberCount =
+    document.getElementById("communityMemberCount");
+
+const communityMembershipButton =
+    document.getElementById("communityMembershipButton");
+
+const communityPostContent =
+    document.getElementById("communityPostContent");
+
+const publishCommunityPostButton =
+    document.getElementById("publishCommunityPostButton");
+
+const communityPostsList =
+    document.getElementById("communityPostsList");
+
+
+/* ABRIR UMA COMUNIDADE */
+
+window.openCommunity = async function (communityId) {
+    communityDetails.style.display = "block";
+    communityDetailName.textContent = "Carregando...";
+    communityDetailDescription.textContent = "";
+    communityMemberCount.textContent = "Carregando participantes...";
+    communityPostsList.textContent = "Carregando publicações...";
+
+    try {
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const user = sessionData?.session?.user;
+
+        if (!user) {
+            alert("Entre na sua conta para acessar a comunidade.");
+            return;
+        }
+
+        const {
+            data: community,
+            error: communityError
+        } = await supabaseClient
+            .from("communities")
+            .select("id, name, description, created_by")
+            .eq("id", communityId)
+            .single();
+
+        if (communityError) throw communityError;
+
+        currentMytosCommunity = community;
+
+        const {
+            data: members,
+            error: membersError
+        } = await supabaseClient
+            .from("community_members")
+            .select("user_id, role")
+            .eq("community_id", communityId);
+
+        if (membersError) throw membersError;
+
+        currentMytosMembership =
+            (members || []).find(
+                member => member.user_id === user.id
+            ) || null;
+
+        communityDetailName.textContent = community.name;
+        communityDetailDescription.textContent =
+            community.description || "Sem descrição.";
+
+        communityMemberCount.textContent =
+            "Participantes: " + (members || []).length;
+
+        const isOwner =
+            currentMytosMembership?.role === "owner";
+
+        const isMember =
+            Boolean(currentMytosMembership);
+
+        communityMembershipButton.disabled = isOwner;
+
+        communityMembershipButton.textContent = isOwner
+            ? "Você é o proprietário"
+            : isMember
+                ? "Sair da comunidade"
+                : "Participar da comunidade";
+
+        communityPostContent.disabled = !isMember;
+        publishCommunityPostButton.disabled = !isMember;
+
+        communityPostContent.placeholder = isMember
+            ? "Compartilhe algo com a comunidade..."
+            : "Participe da comunidade para publicar.";
+
+        if (isMember) {
+            await loadMytosCommunityPosts(communityId);
+        } else {
+            communityPostsList.textContent =
+                "Participe da comunidade para ver e publicar mensagens.";
+        }
+
+        communityDetails.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    } catch (error) {
+        console.error("Erro ao abrir comunidade:", error);
+
+        communityDetailName.textContent =
+            "Não foi possível abrir a comunidade.";
+
+        communityPostsList.textContent =
+            "Verifique a conexão e as permissões do Supabase.";
+    }
+};
+
+
+/* PARTICIPAR OU SAIR */
+
+communityMembershipButton.addEventListener(
+    "click",
+    async function () {
+        if (!currentMytosCommunity) return;
+
+        communityMembershipButton.disabled = true;
+
+        try {
+            const {
+                data: sessionData,
+                error: sessionError
+            } = await supabaseClient.auth.getSession();
+
+            if (sessionError) throw sessionError;
+
+            const user = sessionData?.session?.user;
+
+            if (!user) {
+                alert("Entre novamente na sua conta.");
+                return;
+            }
+
+            if (currentMytosMembership?.role === "owner") {
+                alert("O proprietário não pode sair da própria comunidade.");
+                return;
+            }
+
+            if (currentMytosMembership) {
+                const { error } = await supabaseClient
+                    .from("community_members")
+                    .delete()
+                    .eq("community_id", currentMytosCommunity.id)
+                    .eq("user_id", user.id)
+                    .eq("role", "member");
+
+                if (error) throw error;
+            } else {
+                const { error } = await supabaseClient
+                    .from("community_members")
+                    .insert({
+                        community_id: currentMytosCommunity.id,
+                        user_id: user.id,
+                        role: "member"
+                    });
+
+                if (error) throw error;
+            }
+
+            await window.openCommunity(currentMytosCommunity.id);
+
+        } catch (error) {
+            console.error("Erro ao atualizar participação:", error);
+
+            alert(
+                "Não foi possível atualizar sua participação. " +
+                "Confira as políticas de community_members no Supabase."
+            );
+        } finally {
+            communityMembershipButton.disabled = false;
+        }
+    }
+);
+
+
+/* CARREGAR PUBLICAÇÕES DA COMUNIDADE */
+
+async function loadMytosCommunityPosts(communityId) {
+    communityPostsList.textContent = "Carregando publicações...";
+
+    const {
+        data: posts,
+        error: postsError
+    } = await supabaseClient
+        .from("community_posts")
+        .select("id, user_id, content, created_at")
+        .eq("community_id", communityId)
+        .order("created_at", { ascending: false });
+
+    if (postsError) throw postsError;
+
+    communityPostsList.replaceChildren();
+
+    if (!posts || posts.length === 0) {
+        communityPostsList.textContent =
+            "Ainda não há publicações nesta comunidade.";
+        return;
+    }
+
+    const userIds = [
+        ...new Set(posts.map(post => post.user_id))
+    ];
+
+    const {
+        data: profiles,
+        error: profilesError
+    } = await supabaseClient
+        .from("profiles")
+        .select("id, username, full_name")
+        .in("id", userIds);
+
+    if (profilesError) throw profilesError;
+
+    const profilesMap = new Map(
+        (profiles || []).map(profile => [profile.id, profile])
+    );
+
+    posts.forEach(post => {
+        const card = document.createElement("article");
+
+        card.style.cssText =
+            "padding:14px;margin-top:12px;" +
+            "border:1px solid rgba(255,255,255,.15);" +
+            "border-radius:12px;";
+
+        const profile = profilesMap.get(post.user_id);
+
+        const author = document.createElement("strong");
+        author.textContent =
+            profile?.full_name?.trim() ||
+            (profile?.username ? "@" + profile.username : "Usuário do Mytos");
+
+        const date = document.createElement("p");
+        date.style.cssText = "font-size:12px;color:#a9d8d8;";
+        date.textContent =
+            new Date(post.created_at).toLocaleString("pt-BR");
+
+        const content = document.createElement("p");
+        content.style.whiteSpace = "pre-wrap";
+        content.style.overflowWrap = "anywhere";
+        content.textContent = post.content;
+
+        card.append(author, date, content);
+        communityPostsList.appendChild(card);
+    });
+}
+
+
+/* PUBLICAR NA COMUNIDADE */
+
+publishCommunityPostButton.addEventListener(
+    "click",
+    async function () {
+        if (!currentMytosCommunity) return;
+
+        const content = communityPostContent.value.trim();
+
+        if (!content) {
+            alert("Escreva uma mensagem antes de publicar.");
+            return;
+        }
+
+        publishCommunityPostButton.disabled = true;
+        publishCommunityPostButton.textContent = "Publicando...";
+
+        try {
+            const {
+                data: sessionData,
+                error: sessionError
+            } = await supabaseClient.auth.getSession();
+
+            if (sessionError) throw sessionError;
+
+            const user = sessionData?.session?.user;
+
+            if (!user) {
+                alert("Entre novamente na sua conta.");
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from("community_posts")
+                .insert({
+                    community_id: currentMytosCommunity.id,
+                    user_id: user.id,
+                    content
+                });
+
+            if (error) throw error;
+
+            communityPostContent.value = "";
+
+            await loadMytosCommunityPosts(
+                currentMytosCommunity.id
+            );
+
+        } catch (error) {
+            console.error("Erro ao publicar na comunidade:", error);
+
+            alert(
+                "Não foi possível publicar. Verifique sua participação " +
+                "e as políticas da tabela community_posts."
+            );
+        } finally {
+            publishCommunityPostButton.disabled =
+                !currentMytosMembership;
+
+            publishCommunityPostButton.textContent = "Publicar";
+        }
+    }
+);
+
         /* ==========================================
            FUNÇÃO: MOSTRAR PERFIL
            ========================================== */
