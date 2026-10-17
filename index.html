@@ -3749,7 +3749,18 @@ async function loadPosts(profileUserId = null) {
 
     postsList.innerHTML =
         "<div class='status'>Carregando publicações...</div>";
+    const {
+        data: sessionData,
+        error: sessionError
+    } = await supabaseClient.auth.getSession();
 
+    if (sessionError || !sessionData?.session?.user) {
+        postsList.textContent =
+            "Sua sessão expirou. Entre novamente para ver as publicações.";
+        return;
+    }
+
+    const currentUserId = sessionData.session.user.id;
 
     const {
         data: posts,
@@ -3760,10 +3771,12 @@ async function loadPosts(profileUserId = null) {
             .select(
                 "id, content, title, created_at, user_id"
             )
-        .eq(
+        
+.eq(
     "user_id",
-    profileUserId || (await supabaseClient.auth.getSession()).data.session.user.id
+    profileUserId || currentUserId
 )
+
             .order(
                 "created_at",
                 {
