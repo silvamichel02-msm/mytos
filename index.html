@@ -5034,8 +5034,15 @@ window.loadMyCommunities = async function () {
     });
   } catch (error) {
     console.error("Erro ao carregar Minhas comunidades:", error);
-    list.textContent = "Não foi possível carregar suas comunidades.";
-  }
+
+    list.textContent =
+        "Erro: " +
+        (error?.message || "Não foi possível carregar suas comunidades.")
+
+    if (error?.code) {
+        list.textContent += " | Código: " + error.code;
+    }
+}
 };
 
 
