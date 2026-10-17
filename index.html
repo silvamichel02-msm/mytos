@@ -1610,7 +1610,7 @@ const avatarStatus =
                 SUPABASE_URL,
                 SUPABASE_PUBLISHABLE_KEY
             );
-
+window.supabaseClient = supabaseClient;
 /* ==========================================
    FOTO DE PERFIL — MYTOS
    EDITOR, RECORTE, ZOOM E ENVIO
@@ -4976,7 +4976,7 @@ window.loadMyCommunities = async function () {
 
   try {
     const { data: sessionData, error: sessionError } =
-      await supabaseClient.auth.getSession();
+      await window.supabaseClient.auth.getSession();
 
     if (sessionError) throw sessionError;
 
@@ -4988,7 +4988,7 @@ window.loadMyCommunities = async function () {
     }
 
     const { data: memberships, error: membershipsError } =
-      await supabaseClient
+      await window.supabaseClient
         .from("community_members")
         .select("community_id")
         .eq("user_id", user.id);
@@ -5005,7 +5005,7 @@ window.loadMyCommunities = async function () {
     }
 
     const { data: communities, error: communitiesError } =
-      await supabaseClient
+      await window.supabaseClient
         .from("communities")
         .select("id, name, description")
         .in("id", ids);
