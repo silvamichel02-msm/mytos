@@ -4967,6 +4967,78 @@ if (id === "navCommunities") {
     });
 });
 
+
+window.loadMyCommunities = async function () {
+  const list = document.getElementById("myCommunitiesList");
+  if (!list) return;
+
+  list.textContent = "Carregando suas comunidades...";
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const user = sessionData?.session?.user;
+
+    if (!user) {
+      list.textContent = "Entre na sua conta para ver suas comunidades.";
+      return;
+    }
+
+    const { data: memberships, error: membershipsError } =
+      await supabaseClient
+        .from("community_members")
+        .select("community_id")
+        .eq("user_id", user.id);
+
+    if (membershipsError) throw membershipsError;
+
+    const ids = [...new Set(
+      (memberships || []).map(item => item.community_id)
+    )];
+
+    if (ids.length === 0) {
+      list.textContent = "Você ainda não participa de nenhuma comunidade.";
+      return;
+    }
+
+    const { data: communities, error: communitiesError } =
+      await supabaseClient
+        .from("communities")
+        .select("id, name, description")
+        .in("id", ids);
+
+    if (communitiesError) throw communitiesError;
+
+    list.replaceChildren();
+
+    (communities || []).forEach(community => {
+      const card = document.createElement("div");
+      const title = document.createElement("h3");
+      const description = document.createElement("p");
+      const button = document.createElement("button");
+
+      title.textContent = community.name || "Comunidade sem nome";
+      description.textContent = community.description || "Sem descrição.";
+      button.textContent = "Abrir comunidade";
+      button.type = "button";
+
+      button.addEventListener("click", () => {
+        window.openCommunity(community.id);
+      });
+
+      card.append(title, description, button);
+      list.appendChild(card);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar Minhas comunidades:", error);
+    list.textContent = "Não foi possível carregar suas comunidades.";
+  }
+};
+
+
 </script>
 
 
