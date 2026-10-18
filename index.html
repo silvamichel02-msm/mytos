@@ -3916,7 +3916,12 @@ signupBack.addEventListener("click", function (event) {
 
 /* IMPEDIR DATA FUTURA */
 
-signupBirthDate.max = new Date().toLocaleDateString("en-CA");
+const today = new Date();
+
+signupBirthDate.max =
+    today.getFullYear() + "-" +
+    String(today.getMonth() + 1).padStart(2, "0") + "-" +
+    String(today.getDate()).padStart(2, "0");
 
 /* ENVIAR CADASTRO */
 
