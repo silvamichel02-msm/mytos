@@ -918,113 +918,8 @@
 
 /* CADASTRO PROFISSIONAL — MYTOS */
 
-.signup-panel {
-    display: none;
-    margin-top: 22px;
-}
-
-.signup-panel h2 {
-    margin-bottom: 10px;
-}
-
-.signup-description {
-    color: #b8cccc;
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
-}
-
-.signup-label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 4px;
-    color: #a9d8d8;
-    font-size: 14px;
-}
-
-.signup-panel input {
-    display: block;
-    width: 100%;
-    min-width: 0;
-}
-
-.signup-panel input[type="date"] {
-    color-scheme: dark;
-}
-
-.signup-note {
-    margin-top: 8px;
-    color: #a9d8d8;
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.signup-back {
-    display: block;
-    margin-top: 18px;
-    text-align: center;
-    color: #55ddd6;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.signup-panel button {
-    margin-top: 18px;
-}
-
     </style>
     
-
-.signup-panel {
-    display: none;
-    margin-top: 22px;
-}
-
-.signup-panel h2 {
-    margin-bottom: 10px;
-}
-
-.signup-description {
-    color: #b8cccc;
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
-}
-
-.signup-label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 4px;
-    color: #a9d8d8;
-    font-size: 14px;
-}
-
-.signup-panel input {
-    display: block;
-    width: 100%;
-    min-width: 0;
-}
-
-.signup-panel input[type="date"] {
-    color-scheme: dark;
-}
-
-.signup-note {
-    margin-top: 8px;
-    color: #a9d8d8;
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.signup-back {
-    display: block;
-    margin-top: 18px;
-    text-align: center;
-    color: #55ddd6;
-    text-decoration: none;
-    cursor: pointer;
-}
-
 
 </head>
 
@@ -3943,71 +3838,212 @@ if (profile.avatar_url) {
            CRIAR CONTA
            ========================================== */
 
-        createAccount.addEventListener(
-    "click",
-    async function (event) {
-        event.preventDefault();
+        
+/* ==========================================
+   CADASTRO PROFISSIONAL — MYTOS
+   ========================================== */
 
-        const email = prompt(
-            "Digite o e-mail que deseja cadastrar:"
-        );
+const signupPanel = document.getElementById("signupPanel");
+const signupForm = document.getElementById("signupForm");
+const signupFullName = document.getElementById("signupFullName");
+const signupUsername = document.getElementById("signupUsername");
+const signupEmail = document.getElementById("signupEmail");
+const signupBirthDate = document.getElementById("signupBirthDate");
+const signupPassword = document.getElementById("signupPassword");
+const signupConfirmPassword = document.getElementById("signupConfirmPassword");
+const signupMessage = document.getElementById("signupMessage");
+const signupSubmit = document.getElementById("signupSubmit");
+const signupBack = document.getElementById("signupBack");
+const createArea = document.querySelector(".create");
 
-        if (!email || !email.trim()) {
-            return;
-        }
+function showSignupMessage(text, type) {
+    signupMessage.textContent = text;
+    signupMessage.className = "message " + type;
+}
 
-        const password = prompt(
-            "Crie uma senha com pelo menos 6 caracteres:"
-        );
+function calculateAge(birthDate) {
+    const today = new Date();
+    const birth = new Date(birthDate + "T00:00:00");
 
-        if (!password) {
-            return;
-        }
-
-        if (password.length < 6) {
-            message.textContent =
-                "A senha precisa ter pelo menos 6 caracteres.";
-            message.className = "message error";
-            return;
-        }
-
-        message.textContent = "Criando sua conta...";
-        message.className = "message success";
-
-        try {
-            const {
-                data,
-                error
-            } = await supabaseClient.auth.signUp({
-                email: email.trim(),
-                password: password
-            });
-
-            if (error) {
-                throw error;
-            }
-
-            if (data.session && data.user) {
-                message.textContent =
-                    "Conta criada! Entrando no MYTOS...";
-
-                await showApp(data.user);
-            } else {
-                message.textContent =
-                    "Cadastro enviado! Verifique seu e-mail " +
-                    "para confirmar a conta antes de entrar.";
-                message.className = "message success";
-            }
-        } catch (error) {
-            console.error("Erro no cadastro:", error);
-
-            message.textContent =
-                "Não foi possível criar a conta: " +
-                error.message;
-            message.className = "message error";
-        }
+    if (Number.isNaN(birth.getTime()) || birth > today) {
+        return -1;
     }
-);
+
+    let age = today.getFullYear() - birth.getFullYear();
+
+    const birthdayHasNotOccurred =
+        today.getMonth() < birth.getMonth() ||
+        (
+            today.getMonth() === birth.getMonth() &&
+            today.getDate() < birth.getDate()
+        );
+
+    if (birthdayHasNotOccurred) {
+        age--;
+    }
+
+    return age;
+}
+
+/* ABRIR O FORMULÁRIO */
+
+createAccount.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    form.style.display = "none";
+    signupPanel.style.display = "block";
+    createArea.style.display = "none";
+
+    signupMessage.textContent = "";
+    signupMessage.className = "message";
+
+    signupFullName.focus();
+});
+
+/* VOLTAR PARA O LOGIN */
+
+signupBack.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    signupPanel.style.display = "none";
+    form.style.display = "block";
+    createArea.style.display = "block";
+
+    signupForm.reset();
+    signupMessage.textContent = "";
+    signupMessage.className = "message";
+});
+
+/* IMPEDIR DATA FUTURA */
+
+signupBirthDate.max = new Date().toLocaleDateString("en-CA");
+
+/* ENVIAR CADASTRO */
+
+signupForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    signupMessage.textContent = "";
+    signupMessage.className = "message";
+
+    const fullName = signupFullName.value.trim();
+    const username = signupUsername.value.trim().toLowerCase();
+    const email = signupEmail.value.trim();
+    const birthDate = signupBirthDate.value;
+    const password = signupPassword.value;
+    const confirmPassword = signupConfirmPassword.value;
+
+    if (!fullName || !username || !email || !birthDate ||
+        !password || !confirmPassword) {
+        showSignupMessage("Preencha todos os campos.", "error");
+        return;
+    }
+
+    if (!/^[a-z0-9_]{3,30}$/.test(username)) {
+        showSignupMessage(
+            "O usuário deve ter de 3 a 30 caracteres, usando letras sem acento, números ou sublinhado.",
+            "error"
+        );
+        return;
+    }
+
+    const age = calculateAge(birthDate);
+
+    if (age < 0) {
+        showSignupMessage("Informe uma data de nascimento válida.", "error");
+        return;
+    }
+
+    if (age < 18) {
+        showSignupMessage(
+            "O MYTOS é destinado a pessoas com 18 anos ou mais. Seu cadastro não pode continuar.",
+            "error"
+        );
+        return;
+    }
+
+    if (password.length < 6) {
+        showSignupMessage("A senha deve ter pelo menos 6 caracteres.", "error");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showSignupMessage("As senhas não coincidem.", "error");
+        return;
+    }
+
+    signupSubmit.disabled = true;
+    signupSubmit.textContent = "Criando conta...";
+
+    try {
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    username: username,
+                    birth_date: birthDate
+                }
+            }
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data.user) {
+            throw new Error("O Supabase não retornou os dados da conta.");
+        }
+
+        if (data.session) {
+            const { error: profileError } = await supabaseClient
+                .from("profiles")
+                .upsert({
+                    id: data.user.id,
+                    username: username,
+                    full_name: fullName,
+                    bio: "",
+                    avatar_url: ""
+                }, {
+                    onConflict: "id"
+                });
+
+            if (profileError) {
+                console.error("Erro ao criar perfil:", profileError);
+                showSignupMessage(
+                    "A conta foi criada, mas houve um problema ao criar o perfil. Não tente cadastrar novamente. Entre em contato com o suporte.",
+                    "error"
+                );
+                return;
+            }
+
+            showSignupMessage("Conta criada! Abrindo o MYTOS...", "success");
+            await showApp(data.user);
+        } else {
+            showSignupMessage(
+                "Cadastro enviado! Confirme seu e-mail antes de entrar no MYTOS.",
+                "success"
+            );
+        }
+
+    } catch (error) {
+        console.error("Erro no cadastro:", error);
+
+        let errorText = error.message || "Erro desconhecido.";
+
+        if (error.code === "23505") {
+            errorText = "Esse nome de usuário já está em uso. Escolha outro.";
+        }
+
+        showSignupMessage("Não foi possível criar a conta: " + errorText, "error");
+
+    } finally {
+        signupSubmit.disabled = false;
+        signupSubmit.textContent = "Criar minha conta";
+    }
+});
+
 
 
       /* ==========================================
