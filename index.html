@@ -917,6 +917,65 @@
 }
 
     </style>
+    
+/* ==========================================
+   CADASTRO PROFISSIONAL — MYTOS
+   ========================================== */
+
+.signup-panel {
+    display: none;
+    margin-top: 22px;
+}
+
+.signup-panel h2 {
+    margin-bottom: 10px;
+}
+
+.signup-description {
+    color: #b8cccc;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.signup-label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 4px;
+    color: #a9d8d8;
+    font-size: 14px;
+}
+
+.signup-panel input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.signup-panel input[type="date"] {
+    color-scheme: dark;
+}
+
+.signup-note {
+    margin-top: 8px;
+    color: #a9d8d8;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.signup-back {
+    display: block;
+    margin-top: 18px;
+    text-align: center;
+    color: #55ddd6;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.signup-panel button {
+    margin-top: 18px;
+}
+
 
 </head>
 
@@ -984,6 +1043,111 @@
             ></div>
 
         </form>
+
+        <div id="signupPanel" class="signup-panel">
+
+            <h2>Crie sua conta</h2>
+
+            <p class="signup-description">
+                Faça parte da comunidade MYTOS.
+                Preencha seus dados para começar.
+            </p>
+
+            <form id="signupForm">
+
+                <label class="signup-label" for="signupFullName">
+                    Nome completo
+                </label>
+                <input
+                    id="signupFullName"
+                    type="text"
+                    placeholder="Seu nome completo"
+                    autocomplete="name"
+                    maxlength="100"
+                    required
+                >
+
+                <label class="signup-label" for="signupUsername">
+                    Nome de usuário
+                </label>
+                <input
+                    id="signupUsername"
+                    type="text"
+                    placeholder="seuusuario"
+                    autocomplete="username"
+                    minlength="3"
+                    maxlength="30"
+                    pattern="[A-Za-z0-9_]+"
+                    required
+                >
+
+                <label class="signup-label" for="signupEmail">
+                    E-mail
+                </label>
+                <input
+                    id="signupEmail"
+                    type="email"
+                    placeholder="seuemail@exemplo.com"
+                    autocomplete="email"
+                    required
+                >
+
+                <label class="signup-label" for="signupBirthDate">
+                    Data de nascimento
+                </label>
+                <input
+                    id="signupBirthDate"
+                    type="date"
+                    autocomplete="bday"
+                    required
+                >
+
+                <p class="signup-note">
+                    O cadastro é destinado a pessoas com 18 anos ou mais.
+                </p>
+
+                <label class="signup-label" for="signupPassword">
+                    Senha
+                </label>
+                <input
+                    id="signupPassword"
+                    type="password"
+                    placeholder="Mínimo de 6 caracteres"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+
+                <label class="signup-label" for="signupConfirmPassword">
+                    Confirmar senha
+                </label>
+                <input
+                    id="signupConfirmPassword"
+                    type="password"
+                    placeholder="Digite a senha novamente"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+
+                <div
+                    id="signupMessage"
+                    class="message"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+                <button id="signupSubmit" type="submit">
+                    Criar minha conta
+                </button>
+
+            </form>
+
+            <a href="#" id="signupBack" class="signup-back">
+                Voltar para entrar
+            </a>
+
+        </div>
 
 
         <div class="create">
