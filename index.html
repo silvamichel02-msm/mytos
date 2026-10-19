@@ -2752,12 +2752,31 @@ window.loadConfirmedFriends = async function () {
             username.style.color = "#a9d8d8";
             username.style.marginTop = "4px";
 
-            details.appendChild(fullName);
-            details.appendChild(username);
+            
+details.appendChild(fullName);
+details.appendChild(username);
 
-            card.appendChild(avatar);
-            card.appendChild(details);
-            list.appendChild(card);
+card.appendChild(avatar);
+card.appendChild(details);
+
+card.style.cursor = "pointer";
+card.setAttribute("role", "button");
+card.setAttribute("tabindex", "0");
+card.title = "Visitar perfil de " + name;
+
+card.addEventListener("click", function () {
+    window.openPublicProfile(profile.id);
+});
+
+card.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        window.openPublicProfile(profile.id);
+    }
+});
+
+list.appendChild(card);
+
         });
 
         if (list.childElementCount === 0) {
@@ -5387,7 +5406,184 @@ window.loadMyCommunities = async function () {
     }
 }
 };
-window.loadMessages = async function () {
+
+/* =========================================
+   MYTOS — VISITAR PERFIL PÚBLICO
+========================================= */
+
+window.openPublicProfile = async function (profileId) {
+    const panel = document.getElementById("navFeaturePanel");
+
+    if (!panel || !window.supabaseClient || !profileId) {
+        alert("Não foi possível abrir este perfil.");
+        return;
+    }
+
+    panel.style.display = "block";
+
+    const mainGrid = document.querySelector("main.app-grid");
+    if (mainGrid) mainGrid.style.display = "none";
+
+    panel.replaceChildren();
+
+    const heading = document.createElement("h2");
+    heading.textContent = "Perfil";
+    panel.appendChild(heading);
+
+    const content = document.createElement("div");
+    content.textContent = "Carregando perfil...";
+    panel.appendChild(content);
+
+    try {
+        const { data: sessionData, error: sessionError } =
+            await window.supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const currentUser = sessionData?.session?.user;
+
+        if (!currentUser) {
+            content.textContent = "Entre na sua conta para visitar perfis.";
+            return;
+        }
+
+        if (profileId === currentUser.id) {
+            panel.replaceChildren();
+            if (mainGrid) mainGrid.style.display = "grid";
+
+            const profileSection = document.getElementById("profileSection");
+            const homeSection = document.getElementById("homeSection");
+
+            if (profileSection) profileSection.style.display = "";
+            if (homeSection) homeSection.style.display = "none";
+            return;
+        }
+
+        const { data: profile, error: profileError } =
+            await window.supabaseClient
+                .from("profiles")
+                .select("id, username, full_name, bio, avatar_url")
+                .eq("id", profileId)
+                .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        if (!profile) {
+            content.textContent = "Este perfil não foi encontrado ou não está disponível.";
+            return;
+        }
+
+        content.replaceChildren();
+
+        const avatar = document.createElement("div");
+        avatar.style.cssText =
+            "width:100px;height:100px;margin:16px auto;border-radius:50%;" +
+            "overflow:hidden;display:flex;align-items:center;justify-content:center;" +
+            "background:#1b7778;font-size:36px;font-weight:bold;";
+
+        if (profile.avatar_url) {
+            const image = document.createElement("img");
+            image.src = profile.avatar_url;
+            image.alt = "Foto de perfil";
+            image.style.cssText = "width:100%;height:100%;object-fit:cover;";
+            image.onerror = function () {
+                avatar.replaceChildren();
+                avatar.textContent =
+                    (profile.full_name || profile.username || "U")
+                        .charAt(0).toUpperCase();
+            };
+            avatar.appendChild(image);
+        } else {
+            avatar.textContent =
+                (profile.full_name || profile.username || "U")
+                    .charAt(0).toUpperCase();
+        }
+
+        const name = document.createElement("h3");
+        name.style.textAlign = "center";
+        name.textContent =
+            profile.full_name?.trim() || "Usuário do MYTOS";
+
+        const username = document.createElement("p");
+        username.style.cssText = "text-align:center;color:#8ff5ef;";
+        username.textContent = profile.username
+            ? "@" + profile.username
+            : "";
+
+        const bio = document.createElement("p");
+        bio.style.whiteSpace = "pre-wrap";
+        bio.textContent = profile.bio?.trim() || "Este usuário ainda não adicionou uma biografia.";
+
+        const backButton = document.createElement("button");
+        backButton.type = "button";
+        backButton.className = "secondary-button";
+        backButton.textContent = "Voltar para Amigos";
+        backButton.addEventListener("click", function () {
+            document.getElementById("navFriends")?.click();
+        });
+
+        const postsHeading = document.createElement("h3");
+        postsHeading.textContent = "Publicações";
+        postsHeading.style.marginTop = "28px";
+
+        const postsArea = document.createElement("div");
+        postsArea.textContent = "Carregando publicações...";
+
+        content.append(
+            avatar,
+            name,
+            username,
+            bio,
+            backButton,
+            postsHeading,
+            postsArea
+        );
+
+        const { data: posts, error: postsError } =
+            await window.supabaseClient
+                .from("posts")
+                .select("id, content, created_at")
+                .eq("user_id", profileId)
+                .order("created_at", { ascending: false });
+
+        if (postsError) throw postsError;
+
+        postsArea.replaceChildren();
+
+        if (!posts || posts.length === 0) {
+            postsArea.textContent = "Este usuário ainda não tem publicações.";
+            return;
+        }
+
+        posts.forEach(function (post) {
+            const card = document.createElement("article");
+            card.style.cssText =
+                "padding:14px;margin-top:12px;border-radius:12px;" +
+                "background:rgba(255,255,255,.06);" +
+                "border:1px solid rgba(255,255,255,.12);";
+
+            const date = document.createElement("p");
+            date.style.cssText = "font-size:12px;color:#a9d8d8;";
+            date.textContent =
+                new Date(post.created_at).toLocaleString("pt-BR");
+
+            const text = document.createElement("p");
+            text.style.whiteSpace = "pre-wrap";
+            text.textContent = post.content || "";
+
+            card.append(date, text);
+            postsArea.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Erro ao abrir perfil público:", error);
+        content.textContent =
+            "Não foi possível carregar este perfil. " +
+            (error?.message || "Verifique as permissões do Supabase.");
+    }
+};
+
+    window.loadMessages = async function () {
     const panel = document.getElementById("navFeaturePanel");
 
     if (!panel || !window.supabaseClient) {
