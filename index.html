@@ -5518,9 +5518,60 @@ window.openPublicProfile = async function (profileId) {
         backButton.type = "button";
         backButton.className = "secondary-button";
         backButton.textContent = "Voltar para Amigos";
-        backButton.addEventListener("click", function () {
-            document.getElementById("navFriends")?.click();
-        });
+        
+backButton.addEventListener("click", function () {
+    const panel = document.getElementById("navFeaturePanel");
+    const mainGrid = document.querySelector("main.app-grid");
+    const friendsArea = document.getElementById("friendsArea");
+    const communitiesArea = document.getElementById("communitiesArea");
+
+    if (panel) {
+        panel.style.display = "block";
+    }
+
+    if (mainGrid) {
+        mainGrid.style.display = "none";
+    }
+
+    if (friendsArea) {
+        friendsArea.style.display = "block";
+    }
+
+    if (communitiesArea) {
+        communitiesArea.style.display = "none";
+    }
+
+    const title = document.getElementById("navFeatureTitle");
+    const description = document.getElementById("navFeatureDescription");
+
+    if (title) {
+        title.textContent = "Amigos";
+    }
+
+    if (description) {
+        description.textContent =
+            "Encontre pessoas no Mytos, envie solicitações de amizade e veja seus amigos.";
+    }
+
+    document.querySelectorAll(".mytos-nav-button").forEach(function (button) {
+        button.classList.remove("active");
+    });
+
+    document.getElementById("navFriends")?.classList.add("active");
+
+    if (typeof window.loadFriends === "function") {
+        window.loadFriends();
+    }
+
+    if (typeof window.loadReceivedRequests === "function") {
+        window.loadReceivedRequests();
+    }
+
+    if (typeof window.loadConfirmedFriends === "function") {
+        window.loadConfirmedFriends();
+    }
+});
+
 
         const postsHeading = document.createElement("h3");
         postsHeading.textContent = "Publicações";
