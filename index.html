@@ -5301,7 +5301,12 @@ if (id === "navCommunities") {
   window.loadMyCommunities();
     }
 }
-
+        
+if (id === "navMessages") {
+    if (typeof window.loadMessages === "function") {
+        window.loadMessages();
+    }
+}
     });
 });
 
@@ -5382,7 +5387,103 @@ window.loadMyCommunities = async function () {
     }
 }
 };
+window.loadMessages = async function () {
+    const panel = document.getElementById("navFeaturePanel");
 
+    if (!panel || !window.supabaseClient) {
+        console.error("Painel ou Supabase não encontrado.");
+        return;
+    }
+
+    let area = document.getElementById("messagesArea");
+
+    if (!area) {
+        area = document.createElement("div");
+        area.id = "messagesArea";
+        area.style.marginTop = "20px";
+        panel.appendChild(area);
+    }
+
+    area.innerHTML = "<p>Carregando suas conversas...</p>";
+
+    try {
+        const { data: sessionData, error: sessionError } =
+            await window.supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const user = sessionData?.session?.user;
+
+        if (!user) {
+            area.textContent = "Entre na sua conta para acessar as mensagens.";
+            return;
+        }
+
+        const { data: memberships, error: membershipsError } =
+            await window.supabaseClient
+                .from("conversation_members")
+                .select("conversation_id")
+                .eq("user_id", user.id);
+
+        if (membershipsError) throw membershipsError;
+
+        if (!memberships || memberships.length === 0) {
+            area.textContent =
+                "Você ainda não tem conversas. Em breve poderá iniciar uma conversa com seus amigos.";
+            return;
+        }
+
+        const ids = memberships.map(item => item.conversation_id);
+
+        const { data: conversations, error: conversationsError } =
+            await window.supabaseClient
+                .from("conversations")
+                .select("id, kind, title, created_at")
+                .in("id", ids)
+                .order("created_at", { ascending: false });
+
+        if (conversationsError) throw conversationsError;
+
+        area.innerHTML = "";
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Suas conversas";
+        area.appendChild(heading);
+
+        if (!conversations || conversations.length === 0) {
+            area.appendChild(document.createTextNode(
+                "Nenhuma conversa encontrada."
+            ));
+            return;
+        }
+
+        conversations.forEach(conversation => {
+            const card = document.createElement("div");
+            card.style.padding = "12px";
+            card.style.margin = "10px 0";
+            card.style.border = "1px solid rgba(255,255,255,0.2)";
+            card.style.borderRadius = "12px";
+
+            const title = document.createElement("strong");
+            title.textContent =
+                conversation.title ||
+                (conversation.kind === "group"
+                    ? "Sala em grupo"
+                    : "Conversa privada");
+
+            const detail = document.createElement("p");
+            detail.textContent = "Conversa criada no MYTOS";
+
+            card.append(title, detail);
+            area.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar mensagens:", error);
+        area.textContent =
+            "Não foi possível carregar as conversas. Verifique as permissões do Supabase.";
+    }
+};
 
 </script>
 
