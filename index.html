@@ -5419,20 +5419,58 @@ window.openPublicProfile = async function (profileId) {
         return;
     }
 
-    panel.style.display = "block";
+    
+panel.style.display = "block";
 
-    const mainGrid = document.querySelector("main.app-grid");
-    if (mainGrid) mainGrid.style.display = "none";
+const mainGrid = document.querySelector("main.app-grid");
+if (mainGrid) mainGrid.style.display = "none";
 
-    panel.replaceChildren();
+const publicProfileTitle =
+    document.getElementById("navFeatureTitle");
 
-    const heading = document.createElement("h2");
-    heading.textContent = "Perfil";
-    panel.appendChild(heading);
+const publicProfileDescription =
+    document.getElementById("navFeatureDescription");
 
-    const content = document.createElement("div");
-    content.textContent = "Carregando perfil...";
-    panel.appendChild(content);
+const publicFriendsArea =
+    document.getElementById("friendsArea");
+
+const publicCommunitiesArea =
+    document.getElementById("communitiesArea");
+
+if (publicProfileTitle) {
+    publicProfileTitle.style.display = "none";
+}
+
+if (publicProfileDescription) {
+    publicProfileDescription.style.display = "none";
+}
+
+if (publicFriendsArea) {
+    publicFriendsArea.style.display = "none";
+}
+
+if (publicCommunitiesArea) {
+    publicCommunitiesArea.style.display = "none";
+}
+
+let profileView = document.getElementById("publicProfileView");
+
+if (!profileView) {
+    profileView = document.createElement("div");
+    profileView.id = "publicProfileView";
+    panel.appendChild(profileView);
+}
+
+profileView.replaceChildren();
+profileView.style.display = "block";
+
+const heading = document.createElement("h2");
+heading.textContent = "Perfil";
+profileView.appendChild(heading);
+
+const content = document.createElement("div");
+content.textContent = "Carregando perfil...";
+profileView.appendChild(content);
 
     try {
         const { data: sessionData, error: sessionError } =
@@ -5447,17 +5485,31 @@ window.openPublicProfile = async function (profileId) {
             return;
         }
 
-        if (profileId === currentUser.id) {
-            panel.replaceChildren();
-            if (mainGrid) mainGrid.style.display = "grid";
+        
+if (profileId === currentUser.id) {
+    profileView.style.display = "none";
 
-            const profileSection = document.getElementById("profileSection");
-            const homeSection = document.getElementById("homeSection");
+    if (publicProfileTitle) {
+        publicProfileTitle.style.display = "";
+    }
 
-            if (profileSection) profileSection.style.display = "";
-            if (homeSection) homeSection.style.display = "none";
-            return;
-        }
+    if (publicProfileDescription) {
+        publicProfileDescription.style.display = "";
+    }
+
+    if (mainGrid) mainGrid.style.display = "grid";
+
+    const profileSection = document.getElementById("profileSection");
+    const homeSection = document.getElementById("homeSection");
+
+    if (profileSection) profileSection.style.display = "";
+    if (homeSection) homeSection.style.display = "none";
+
+    document.getElementById("navProfile")?.click();
+
+    return;
+}
+
 
         const { data: profile, error: profileError } =
             await window.supabaseClient
@@ -5519,58 +5571,25 @@ window.openPublicProfile = async function (profileId) {
         backButton.className = "secondary-button";
         backButton.textContent = "Voltar para Amigos";
         
+
 backButton.addEventListener("click", function () {
-    const panel = document.getElementById("navFeaturePanel");
-    const mainGrid = document.querySelector("main.app-grid");
-    const friendsArea = document.getElementById("friendsArea");
-    const communitiesArea = document.getElementById("communitiesArea");
+    const profileView =
+        document.getElementById("publicProfileView");
 
-    if (panel) {
-        panel.style.display = "block";
-    }
-
-    if (mainGrid) {
-        mainGrid.style.display = "none";
-    }
-
-    if (friendsArea) {
-        friendsArea.style.display = "block";
-    }
-
-    if (communitiesArea) {
-        communitiesArea.style.display = "none";
+    if (profileView) {
+        profileView.style.display = "none";
     }
 
     const title = document.getElementById("navFeatureTitle");
-    const description = document.getElementById("navFeatureDescription");
+    const description =
+        document.getElementById("navFeatureDescription");
 
-    if (title) {
-        title.textContent = "Amigos";
-    }
+    if (title) title.style.display = "";
+    if (description) description.style.display = "";
 
-    if (description) {
-        description.textContent =
-            "Encontre pessoas no Mytos, envie solicitações de amizade e veja seus amigos.";
-    }
-
-    document.querySelectorAll(".mytos-nav-button").forEach(function (button) {
-        button.classList.remove("active");
-    });
-
-    document.getElementById("navFriends")?.classList.add("active");
-
-    if (typeof window.loadFriends === "function") {
-        window.loadFriends();
-    }
-
-    if (typeof window.loadReceivedRequests === "function") {
-        window.loadReceivedRequests();
-    }
-
-    if (typeof window.loadConfirmedFriends === "function") {
-        window.loadConfirmedFriends();
-    }
+    document.getElementById("navFriends")?.click();
 });
+
 
 
         const postsHeading = document.createElement("h3");
