@@ -5663,12 +5663,17 @@ backButton.addEventListener("click", function () {
 
     let area = document.getElementById("messagesArea");
 
-    if (!area) {
-        area = document.createElement("div");
-        area.id = "messagesArea";
-        area.style.marginTop = "20px";
-        panel.appendChild(area);
-    }
+if (!area) {
+    area = document.createElement("div");
+    area.id = "messagesArea";
+    area.style.marginTop = "20px";
+}
+
+if (area.parentElement !== panel) {
+    panel.appendChild(area);
+}
+
+area.style.display = "block";
 
     area.innerHTML = "<p>Carregando suas conversas...</p>";
 
