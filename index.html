@@ -725,27 +725,22 @@
            ========================================== */
 
         .mytos-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 14px 4px 6px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
 
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 8px;
-
-            margin-top: 18px;
-
-            padding-top: 14px;
-
-            border-top:
-                1px solid rgba(255,255,255,0.10);
-
-            overflow-x: auto;
-
-            scrollbar-width: none;
-        }
-
+.mytos-nav-button {
+    flex: 0 0 auto;
+}
 
         .mytos-nav::-webkit-scrollbar {
 
