@@ -5971,15 +5971,163 @@ window.openConversationScreen = async function (conversationId, friendName) {
 
     screen.append(backButton, heading, history, input, sendButton);
 
-    /* O histórico e o envio serão conectados na próxima etapa. */
+    
+const notice = document.createElement("p");
+notice.style.color = "#a9d8d8";
+notice.textContent = "Carregando histórico...";
+screen.appendChild(notice);
+
+const supabase = window.supabaseClient;
+let currentUserId = null;
+let sendingMessage = false;
+
+history.style.display = "flex";
+history.style.flexDirection = "column";
+history.style.gap = "10px";
+
+input.disabled = true;
+sendButton.disabled = true;
+
+async function loadConversationHistory() {
+    history.textContent = "Carregando mensagens...";
+
+    const { data, error } = await supabase
+        .from("messages")
+        .select("id, sender_id, body, created_at")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    history.replaceChildren();
+
+    if (!data || data.length === 0) {
+        history.textContent =
+            "Esta conversa ainda não tem mensagens. Envie a primeira!";
+        return;
+    }
+
+    data.forEach(function (message) {
+        const bubble = document.createElement("div");
+        const author = document.createElement("strong");
+        const body = document.createElement("p");
+        const date = document.createElement("small");
+
+        const isMine = message.sender_id === currentUserId;
+
+        author.textContent = isMine ? "Você" : friendName;
+        body.textContent = message.body;
+
+        date.textContent = new Date(
+            message.created_at
+        ).toLocaleString("pt-BR");
+
+        bubble.style.cssText =
+            "padding:10px 12px;border-radius:12px;" +
+            "max-width:90%;overflow-wrap:anywhere;" +
+            "align-self:" + (isMine ? "flex-end" : "flex-start") + ";" +
+            "background:" +
+            (isMine
+                ? "rgba(53,198,192,.20)"
+                : "rgba(255,255,255,.08)") + ";";
+
+        body.style.whiteSpace = "pre-wrap";
+        body.style.margin = "6px 0";
+        date.style.opacity = "0.7";
+        date.style.fontSize = "11px";
+
+        bubble.append(author, body, date);
+        history.appendChild(bubble);
+    });
+
+    history.scrollTop = history.scrollHeight;
+}
+
+async function sendCurrentMessage() {
+    if (sendingMessage) return;
+
+    const body = input.value.trim();
+
+    if (!body) {
+        notice.textContent = "Escreva uma mensagem antes de enviar.";
+        return;
+    }
+
+    if (body.length > 4000) {
+        notice.textContent = "A mensagem deve ter até 4.000 caracteres.";
+        return;
+    }
+
+    sendingMessage = true;
     sendButton.disabled = true;
     input.disabled = true;
+    notice.textContent = "Enviando mensagem...";
 
-    const notice = document.createElement("p");
+    try {
+        const { error } = await supabase
+            .from("messages")
+            .insert({
+                conversation_id: conversationId,
+                sender_id: currentUserId,
+                body: body
+            });
+
+        if (error) throw error;
+
+        input.value = "";
+        await loadConversationHistory();
+        notice.textContent = "Mensagem enviada.";
+    } catch (error) {
+        console.error("Erro ao enviar mensagem:", error);
+        notice.textContent =
+            "Não foi possível enviar: " +
+            (error.message || "verifique sua conexão e permissões.");
+    } finally {
+        sendingMessage = false;
+        sendButton.disabled = false;
+        input.disabled = false;
+        input.focus();
+    }
+}
+
+sendButton.addEventListener("click", sendCurrentMessage);
+
+input.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendCurrentMessage();
+    }
+});
+
+try {
+    if (!supabase) {
+        throw new Error("Conexão com o Supabase não encontrada.");
+    }
+
+    const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+
+    if (userError) throw userError;
+
+    if (!userData.user) {
+        throw new Error("Entre na sua conta para acessar as mensagens.");
+    }
+
+    currentUserId = userData.user.id;
+
+    await loadConversationHistory();
+
+    input.disabled = false;
+    sendButton.disabled = false;
     notice.textContent =
-        "Tela preparada. O envio será ativado após conectarmos o histórico.";
-    notice.style.color = "#a9d8d8";
-    screen.appendChild(notice);
+        "Histórico carregado. Você pode enviar mensagens.";
+} catch (error) {
+    console.error("Erro ao carregar a conversa:", error);
+    history.textContent = "Não foi possível carregar as mensagens.";
+    notice.textContent =
+        error.message || "Verifique sua conexão e as permissões do Supabase.";
+}
+
 };
 
 </script>
