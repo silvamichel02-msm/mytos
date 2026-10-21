@@ -5852,11 +5852,29 @@ window.openDirectConversation = async function (friendId) {
             throw new Error("O banco não retornou o identificador da conversa.");
         }
 
-        alert("Conversa privada criada ou localizada com sucesso.");
+        const { data: friendProfile, error: friendProfileError } =
+    await supabase
+        .from("profiles")
+        .select("full_name, username")
+        .eq("id", friendId)
+        .maybeSingle();
 
-        if (typeof window.loadMessages === "function") {
-            await window.loadMessages();
-        }
+if (friendProfileError) throw friendProfileError;
+
+const friendName =
+    friendProfile?.full_name?.trim() ||
+    (friendProfile?.username
+        ? "@" + friendProfile.username
+        : "Conversa privada");
+
+if (typeof window.openConversationScreen === "function") {
+    await window.openConversationScreen(
+        conversationId,
+        friendName
+    );
+} else {
+    throw new Error("A tela da conversa não foi carregada.");
+}
     } catch (error) {
         console.error("Erro ao abrir conversa privada:", error);
         alert(
@@ -5864,6 +5882,104 @@ window.openDirectConversation = async function (friendId) {
             (error?.message || "Verifique as permissões do Supabase.")
         );
     }
+};
+
+    
+/* =========================================
+   MYTOS — TELA EXCLUSIVA DA CONVERSA
+   ========================================= */
+
+window.openConversationScreen = async function (conversationId, friendName) {
+    const panel = document.getElementById("navFeaturePanel");
+
+    if (!panel || !conversationId) {
+        alert("Não foi possível abrir esta conversa.");
+        return;
+    }
+
+    const mainGrid = document.querySelector("main.app-grid");
+    if (mainGrid) mainGrid.style.display = "none";
+
+    panel.style.display = "block";
+
+    const title = document.getElementById("navFeatureTitle");
+    const description = document.getElementById("navFeatureDescription");
+
+    if (title) title.style.display = "none";
+    if (description) description.style.display = "none";
+
+    ["friendsArea", "communitiesArea", "messagesArea", "publicProfileView"].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = "none";
+    });
+
+    let screen = document.getElementById("mytosConversationScreen");
+
+    if (!screen) {
+        screen = document.createElement("div");
+        screen.id = "mytosConversationScreen";
+        panel.appendChild(screen);
+    }
+
+    screen.style.display = "block";
+    screen.replaceChildren();
+
+    const heading = document.createElement("h2");
+    heading.textContent = "☎️ " + (friendName || "Conversa privada");
+    heading.style.textAlign = "center";
+
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.textContent = "← Voltar às conversas";
+    backButton.className = "secondary-button";
+
+    backButton.addEventListener("click", function () {
+        screen.style.display = "none";
+
+        if (title) {
+            title.style.display = "";
+            title.textContent = "Mensagens";
+        }
+
+        if (description) {
+            description.style.display = "";
+            description.textContent =
+                "Converse em particular com seus amigos e participe de salas de conversa.";
+        }
+
+        document.getElementById("navMessages")?.click();
+    });
+
+    const history = document.createElement("div");
+    history.id = "mytosMessageHistory";
+    history.style.cssText =
+        "min-height:180px;max-height:50vh;overflow-y:auto;" +
+        "padding:12px;margin-top:16px;border-radius:12px;" +
+        "background:rgba(0,0,0,.15);";
+
+    history.textContent = "Carregando mensagens...";
+
+    const input = document.createElement("textarea");
+    input.id = "mytosMessageInput";
+    input.maxLength = 4000;
+    input.placeholder = "Escreva sua mensagem...";
+    input.setAttribute("aria-label", "Escreva sua mensagem");
+
+    const sendButton = document.createElement("button");
+    sendButton.type = "button";
+    sendButton.textContent = "Enviar mensagem";
+
+    screen.append(backButton, heading, history, input, sendButton);
+
+    /* O histórico e o envio serão conectados na próxima etapa. */
+    sendButton.disabled = true;
+    input.disabled = true;
+
+    const notice = document.createElement("p");
+    notice.textContent =
+        "Tela preparada. O envio será ativado após conectarmos o histórico.";
+    notice.style.color = "#a9d8d8";
+    screen.appendChild(notice);
 };
 
 </script>
