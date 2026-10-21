@@ -5778,6 +5778,57 @@ area.style.display = "block";
     }
 };
 
+window.openDirectConversation = async function (friendId) {
+    const supabase = window.supabaseClient;
+
+    if (!supabase) {
+        alert("O MYTOS não conseguiu conectar ao banco de dados.");
+        return;
+    }
+
+    if (!friendId) {
+        alert("Não foi possível identificar este amigo.");
+        return;
+    }
+
+    try {
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const user = sessionData?.session?.user;
+
+        if (!user) {
+            alert("Entre na sua conta para iniciar uma conversa.");
+            return;
+        }
+
+        const { data: conversationId, error } = await supabase
+            .rpc("open_direct_conversation", {
+                p_friend_id: friendId
+            });
+
+        if (error) throw error;
+
+        if (!conversationId) {
+            throw new Error("O banco não retornou o identificador da conversa.");
+        }
+
+        alert("Conversa privada criada ou localizada com sucesso.");
+
+        if (typeof window.loadMessages === "function") {
+            await window.loadMessages();
+        }
+    } catch (error) {
+        console.error("Erro ao abrir conversa privada:", error);
+        alert(
+            "Não foi possível abrir a conversa. " +
+            (error?.message || "Verifique as permissões do Supabase.")
+        );
+    }
+};
+
 </script>
 
 
