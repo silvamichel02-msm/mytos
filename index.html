@@ -5266,7 +5266,34 @@ Object.entries(navItems).forEach(([id, item]) => {
         });
 
         button.classList.add("active");
+// LIMPAR CONTEÚDOS DE ÁREAS ANTERIORES
+const publicProfileView =
+    document.getElementById("publicProfileView");
 
+if (publicProfileView) {
+    publicProfileView.style.display = "none";
+}
+
+const messagesArea =
+    document.getElementById("messagesArea");
+
+if (messagesArea) {
+    messagesArea.style.display = "none";
+}
+
+const publicProfileTitle =
+    document.getElementById("navFeatureTitle");
+
+const publicProfileDescription =
+    document.getElementById("navFeatureDescription");
+
+if (publicProfileTitle) {
+    publicProfileTitle.style.display = "";
+}
+
+if (publicProfileDescription) {
+    publicProfileDescription.style.display = "";
+}
         
 if (id === "navHome") {
     navFeaturePanel.style.display = "none";
