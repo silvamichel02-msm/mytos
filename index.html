@@ -2754,6 +2754,43 @@ details.appendChild(username);
 card.appendChild(avatar);
 card.appendChild(details);
 
+const phoneButton = document.createElement("button");
+phoneButton.type = "button";
+phoneButton.title = "Conversar com " + name;
+phoneButton.setAttribute("aria-label", "Conversar com " + name);
+
+phoneButton.style.cssText =
+    "width:54px;min-width:54px;height:66px;" +
+    "margin-left:8px;padding:4px;" +
+    "border:1px solid #397b83;border-radius:12px;" +
+    "background:#17383e;color:#b7f5ee;" +
+    "display:flex;flex-direction:column;" +
+    "align-items:center;justify-content:center;" +
+    "gap:3px;cursor:pointer;";
+
+const phoneIcon = document.createElement("span");
+phoneIcon.textContent = "☎️";
+phoneIcon.style.fontSize = "28px";
+phoneIcon.style.lineHeight = "1";
+
+const phoneLabel = document.createElement("span");
+phoneLabel.textContent = "Ligar";
+phoneLabel.style.fontSize = "10px";
+
+phoneButton.appendChild(phoneIcon);
+phoneButton.appendChild(phoneLabel);
+
+phoneButton.addEventListener("click", async function(event) {
+    event.stopPropagation();
+    await window.openDirectConversation(profile.id);
+});
+
+phoneButton.addEventListener("keydown", function(event) {
+    event.stopPropagation();
+});
+
+card.appendChild(phoneButton);
+
 card.style.cursor = "pointer";
 card.setAttribute("role", "button");
 card.setAttribute("tabindex", "0");
