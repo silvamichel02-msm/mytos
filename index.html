@@ -5807,26 +5807,74 @@ area.style.display = "block";
             return;
         }
 
-        conversations.forEach(conversation => {
-            const card = document.createElement("div");
-            card.style.padding = "12px";
-            card.style.margin = "10px 0";
-            card.style.border = "1px solid rgba(255,255,255,0.2)";
-            card.style.borderRadius = "12px";
+    for (const conversation of conversations) {
+    const card = document.createElement("div");
+    card.style.padding = "12px";
+    card.style.margin = "10px 0";
+    card.style.border = "1px solid rgba(255,255,255,0.2)";
+    card.style.borderRadius = "12px";
+    card.style.cursor = "pointer";
 
-            const title = document.createElement("strong");
-            title.textContent =
-                conversation.title ||
-                (conversation.kind === "group"
-                    ? "Sala em grupo"
+    const title = document.createElement("strong");
+    const detail = document.createElement("p");
+
+    if (conversation.kind === "group") {
+        title.textContent = conversation.title || "Sala em grupo";
+        detail.textContent = "Conversa em grupo no MYTOS";
+    } else {
+        const { data: participants, error: participantsError } =
+            await window.supabaseClient
+                .from("conversation_members")
+                .select("user_id")
+                .eq("conversation_id", conversation.id);
+
+        if (participantsError) throw participantsError;
+
+        const otherParticipant = (participants || [])
+            .find(member => member.user_id !== user.id);
+
+        let friendName = "Conversa privada";
+
+        if (otherParticipant) {
+            const { data: friendProfile, error: friendProfileError } =
+                await window.supabaseClient
+                    .from("profiles")
+                    .select("full_name, username")
+                    .eq("id", otherParticipant.user_id)
+                    .maybeSingle();
+
+            if (friendProfileError) throw friendProfileError;
+
+            friendName =
+                friendProfile?.full_name?.trim() ||
+                (friendProfile?.username
+                    ? "@" + friendProfile.username
                     : "Conversa privada");
+        }
 
-            const detail = document.createElement("p");
-            detail.textContent = "Conversa criada no MYTOS";
+        title.textContent = friendName;
+        detail.textContent = "Conversa privada no MYTOS";
+    }
 
-            card.append(title, detail);
-            area.appendChild(card);
-        });
+    card.append(title, detail);
+
+    card.addEventListener("click", async () => {
+        try {
+            let friendName = title.textContent;
+
+            await window.openConversationScreen(
+                conversation.id,
+                friendName
+            );
+        } catch (error) {
+            console.error("Erro ao abrir conversa:", error);
+            alert("Não foi possível abrir esta conversa.");
+        }
+    });
+
+    area.appendChild(card);
+}
+
 
     } catch (error) {
         console.error("Erro ao carregar mensagens:", error);
