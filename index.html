@@ -2769,7 +2769,27 @@ phoneButton.style.cssText =
     "gap:3px;cursor:pointer;";
 
 const phoneIcon = document.createElement("span");
-phoneIcon.textContent = "⌨️";
+phoneIcon.innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="36" height="36" viewBox="0 0 64 64"
+       fill="none" aria-label="Máquina de escrever">
+    <path d="M23 5h18v19H23z"
+          fill="#f5e7c8" stroke="#d9a85e" stroke-width="2"/>
+    <path d="M18 23h28l8 12H10z"
+          fill="#19b9b0" stroke="#087e83" stroke-width="2"/>
+    <path d="M10 35h44l5 19H5z"
+          fill="#087e83" stroke="#d9a85e" stroke-width="2"/>
+    <rect x="12" y="39" width="40" height="9" rx="2"
+          fill="#102f3a" stroke="#f0c77b" stroke-width="1.5"/>
+    <path d="M17 42h4m3 0h4m3 0h4m3 0h4m3 0h3"
+          stroke="#f5e7c8" stroke-width="2" stroke-linecap="round"/>
+    <path d="M19 28h26M22 31h20"
+          stroke="#f5e7c8" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="26" y="10" width="12" height="9" rx="1"
+          fill="#fff8e8"/>
+    <path d="M29 14h6" stroke="#d9a85e" stroke-width="1.5"/>
+  </svg>
+`;
 phoneIcon.style.fontSize = "28px";
 phoneIcon.style.lineHeight = "1";
 
@@ -5925,7 +5945,7 @@ window.openConversationScreen = async function (conversationId, friendName) {
     screen.replaceChildren();
 
     const heading = document.createElement("h2");
-    heading.textContent = "☎️ " + (friendName || "Conversa privada");
+    heading.textContent = "⌨️ " + (friendName || "Conversa privada");
     heading.style.textAlign = "center";
 
     const backButton = document.createElement("button");
