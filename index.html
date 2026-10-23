@@ -6146,11 +6146,6 @@ async function sendCurrentMessage() {
             );
         }
 
-        if (authenticatedUser.id !== currentUserId) {
-            throw new Error(
-                "A sessão mudou. Feche e abra a conversa novamente."
-            );
-        }
 
         console.log("Diagnóstico de envio MYTOS:", {
             conversationId: conversationId,
