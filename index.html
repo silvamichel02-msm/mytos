@@ -6131,14 +6131,43 @@ async function sendCurrentMessage() {
     input.disabled = true;
     notice.textContent = "Enviando mensagem...";
 
+    
     try {
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const authenticatedUser = sessionData?.session?.user;
+
+        if (!authenticatedUser) {
+            throw new Error(
+                "Sessão não encontrada. Entre novamente no MYTOS."
+            );
+        }
+
+        if (authenticatedUser.id !== currentUserId) {
+            throw new Error(
+                "A sessão mudou. Feche e abra a conversa novamente."
+            );
+        }
+
+        console.log("Diagnóstico de envio MYTOS:", {
+            conversationId: conversationId,
+            currentUserId: currentUserId,
+            authenticatedUserId: authenticatedUser.id
+        });
+
         const { error } = await supabase
             .from("messages")
             .insert({
                 conversation_id: conversationId,
-                sender_id: currentUserId,
+                sender_id: authenticatedUser.id,
                 body: body
             });
+
+        if (error) throw error;
+
 
         if (error) throw error;
 
