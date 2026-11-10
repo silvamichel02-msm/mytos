@@ -1762,6 +1762,185 @@ const avatarStatus =
                 SUPABASE_PUBLISHABLE_KEY
             );
 window.supabaseClient = supabaseClient;
+        
+/* ==========================================
+   MYTOS IA — INTEGRAÇÃO COM A BELLA IA
+   ========================================== */
+
+const mytosIAInput =
+    document.getElementById("mytosIAInput");
+
+const mytosIASend =
+    document.getElementById("mytosIASend");
+
+const mytosIAHistory =
+    document.getElementById("mytosIAHistory");
+
+const mytosIANotice =
+    document.getElementById("mytosIANotice");
+
+let mytosIAConversationId = null;
+let mytosIASending = false;
+
+function addMytosIAMessage(role, content) {
+
+    const bubble = document.createElement("div");
+
+    bubble.style.cssText =
+        "padding:12px;margin:10px 0;" +
+        "border-radius:12px;" +
+        "white-space:pre-wrap;" +
+        "overflow-wrap:anywhere;" +
+        "background:" +
+        (role === "user"
+            ? "rgba(53,198,192,0.20)"
+            : "rgba(255,255,255,0.10)") + ";";
+
+    const author = document.createElement("strong");
+
+    author.textContent =
+        role === "user" ? "Você" : "Bella IA";
+
+    const message = document.createElement("p");
+
+    message.style.marginBottom = "0";
+    message.textContent = content;
+
+    bubble.append(author, message);
+
+    mytosIAHistory.appendChild(bubble);
+
+    mytosIAHistory.scrollTop =
+        mytosIAHistory.scrollHeight;
+}
+
+
+/* ENVIAR MENSAGEM */
+
+async function sendMytosIAMessage() {
+
+    if (mytosIASending) return;
+
+    const message = mytosIAInput.value.trim();
+
+    if (!message) {
+        mytosIANotice.textContent =
+            "Digite uma mensagem antes de enviar.";
+        return;
+    }
+
+    mytosIASending = true;
+
+    mytosIASend.disabled = true;
+    mytosIAInput.disabled = true;
+
+    mytosIASend.textContent = "Bella IA pensando...";
+    mytosIANotice.textContent = "Enviando mensagem...";
+
+    try {
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const session = sessionData?.session;
+
+        if (!session) {
+            throw new Error(
+                "Sessão não encontrada. Entre novamente no MYTOS."
+            );
+        }
+
+        const {
+            data,
+            error
+        } = await supabaseClient.functions.invoke(
+            "mytos-ia",
+            {
+                body: {
+                    message: message,
+                    conversation_id: mytosIAConversationId
+                },
+                headers: {
+                    Authorization:
+                        "Bearer " + session.access_token
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || !data.answer || !data.conversation_id) {
+            throw new Error(
+                data?.error || "A Bella IA não retornou uma resposta válida."
+            );
+        }
+
+        mytosIAConversationId = data.conversation_id;
+
+        const previousMessage = mytosIAInput.value;
+
+        addMytosIAMessage("user", message);
+        addMytosIAMessage("assistant", data.answer);
+
+        mytosIAInput.value = "";
+
+        mytosIANotice.textContent =
+            "Bella IA respondeu com sucesso!";
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao enviar mensagem para Bella IA:",
+            error
+        );
+
+        mytosIANotice.textContent =
+            "Não foi possível enviar: " +
+            (error.message || "Erro de comunicação.");
+
+    } finally {
+
+        mytosIASending = false;
+
+        mytosIASend.disabled = false;
+        mytosIAInput.disabled = false;
+
+        mytosIASend.textContent = "Enviar mensagem";
+
+        mytosIAInput.focus();
+    }
+}
+
+
+/* EVENTO DO BOTÃO */
+
+mytosIASend.addEventListener(
+    "click",
+    sendMytosIAMessage
+);
+
+
+/* ENVIAR COM ENTER */
+
+mytosIAInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+            event.preventDefault();
+            sendMytosIAMessage();
+        }
+
+    }
+);
+
 /* ==========================================
    FOTO DE PERFIL — MYTOS
    EDITOR, RECORTE, ZOOM E ENVIO
